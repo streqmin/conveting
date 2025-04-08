@@ -1,7 +1,7 @@
 ---
 name: WBS 기반 작업 내용
 about: WBS 기반 작업 내용 업로드
-title: "[작업 코드] 구현 요소 - 25/04/07"
+title: "[작업코드] 구현요소 - 25/04/07"
 labels: ''
 assignees: streqmin
 
