@@ -12,14 +12,11 @@ import uuid
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, email, password, **extra_fields):
-        if not email:
-            raise ValueError("이메일은 반드시 입력해야 합니다.")
+    def _create_user(self, username, password, **extra_fields):
+        if not username:
+            raise ValueError("사용자명(username)은 반드시 입력해야 합니다.")
 
-        email = self.normalize_email(email)
-        GlobalUserModel = apps.get_model(self.model._meta.app_label, self.model._meta.object_name)
-
-        user = self.model(email=email, **extra_fields)
+        user = self.model(username=username, **extra_fields)
         if password:
             user.password = make_password(password)
         else:
@@ -28,12 +25,12 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, username, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(username, password, **extra_fields)
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, username, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -42,31 +39,23 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("슈퍼유저는 반드시 is_superuser=True 이어야 합니다.")
 
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(username, password, **extra_fields)
 
-    def with_perm(self, perm, is_active=True, include_superusers=True, backend=None, obj=None):
-        if backend is None:
-            backends = get_backends()
-            if len(backends) == 1:
-                backend = backends[0]
-            else:
-                raise ImproperlyConfigured(
-                    "설정된 인증 backend가 여러 개이므로 `backend` 인자를 명시해야 합니다."
-                )
-        elif not isinstance(backend, str):
-            raise TypeError(
-                "backend는 문자열 경로여야 합니다 (예: 'django.contrib.auth.backends.ModelBackend')"
-            )
+    def create_social_user(self, username, social_type, social_id, **extra_fields):
+        if not username:
+            raise ValueError("사용자명(username)은 반드시 입력해야 합니다.")
+        if not social_type:
+            raise ValueError("소셜 타입은 반드시 지정해야 합니다.")
+        if not social_id:
+            raise ValueError("소셜 ID는 반드시 지정해야 합니다.")
 
-        backend = load_backend(backend)
-        if hasattr(backend, "with_perm"):
-            return backend.with_perm(
-                perm,
-                is_active=is_active,
-                include_superusers=include_superusers,
-                obj=obj,
-            )
-        return self.none()
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        extra_fields["social_type"] = social_type
+        extra_fields["social_id"] = social_id
+
+        return self._create_user(username=username, password=None, **extra_fields)
+
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -76,9 +65,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         GOOGLE = "google", "Google"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(max_length=255, unique=True)
+    username = models.CharField(max_length=30, unique=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
-    nickname = models.CharField(max_length=30)
     profile_image = models.CharField(max_length=500, blank=True, null=True)
     social_type = models.CharField(
         max_length=20, choices=SocialType.choices, default=SocialType.EMAIL
@@ -90,11 +79,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["nickname"]
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.nickname
+        return self.username
 
     class Meta:
         verbose_name = _("user")
