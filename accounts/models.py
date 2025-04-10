@@ -57,7 +57,6 @@ class UserManager(BaseUserManager):
         return self._create_user(username=username, password=None, **extra_fields)
 
 
-
 class User(AbstractBaseUser, PermissionsMixin):
     class SocialType(models.TextChoices):
         EMAIL = "email", "Email"
