@@ -44,7 +44,7 @@ class LoginView(View):
             messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
             return render(request, "accounts/login.html", status=400)
 
-        now = datetime.now(tz=KST)
+        now = datetime.now(tz=seoul_tz)
 
         # access token: 15분 유효
         access_payload = {
