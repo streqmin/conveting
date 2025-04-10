@@ -95,7 +95,6 @@ class TokenRefreshView(View):
             return JsonResponse({"error": "잘못된 토큰 타입입니다."}, status=400)
 
         user_id = payload.get("user_id")
-        username = payload.get("username")
 
         try:
             user = User.objects.get(id=user_id)
