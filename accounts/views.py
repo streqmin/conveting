@@ -41,20 +41,33 @@ class LoginView(View):
 
         user = authenticate(request, username=username, password=password)
         if user is None:
-            # 에러 내용과 함께 login 페이지 렌더링
-            return HttpResponseBadRequest("아이디 또는 비밀번호가 올바르지 않습니다.")
+            messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
+            return render(request, "accounts/login.html", status=400)
 
-        # JWT 생성
-        payload = {
+        now = datetime.now(tz=KST)
+
+        # access token: 15분 유효
+        access_payload = {
             "user_id": str(user.id),
             "username": user.username,
-            "exp": datetime.now(seoul_tz) + timedelta(days=7),
-            "iat": datetime.now(seoul_tz),
+            "exp": now + timedelta(minutes=15),
+            "iat": now,
+            "type": "access",
         }
-        token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+        access_token = jwt.encode(access_payload, settings.SECRET_KEY, algorithm="HS256")
+
+        # refresh token: 7일 유효
+        refresh_payload = {
+            "user_id": str(user.id),
+            "exp": now + timedelta(days=7),
+            "iat": now,
+            "type": "refresh",
+        }
+        refresh_token = jwt.encode(refresh_payload, settings.SECRET_KEY, algorithm="HS256")
 
         response = JsonResponse({"message": "로그인 성공"})
-        response.set_cookie("jwt", token, httponly=True, samesite="Lax")
+        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
         return response
 
 
