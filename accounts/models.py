@@ -1,10 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth import get_backends, load_backend
-from django.utils.translation import gettext_lazy as _
-from django.apps import apps
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 import uuid
 
@@ -15,6 +11,8 @@ class UserManager(BaseUserManager):
     def _create_user(self, username, password, **extra_fields):
         if not username:
             raise ValueError("사용자명(username)은 반드시 입력해야 합니다.")
+
+        username = self.model.normalize_username(username)
 
         user = self.model(username=username, **extra_fields)
         if password:
