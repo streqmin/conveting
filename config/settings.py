@@ -37,26 +37,50 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    # allauth 필수 앱
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    # 소셜 계정 제공자
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.kakao",
+    # 커스텀 앱
     "accounts",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    'accounts.middleware.JWTAuthenticationMiddleware',
+    "accounts.middleware.JWTAuthenticationMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "APP": {
+            "client_id": "61132518239-6d012e5g8shr1v3gjtbppm98ipdojnn8.apps.googleusercontent.com",
+            "secret": "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",
+            "key": "",
+        },
+    },
+    "kakao": {"APP": {"client_id": "70e76dc07e2f31f0960a7e11e67129d1", "secret": "", "key": ""}},
+}
+
 
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -106,6 +130,27 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+    # 기본 로그인 백엔드
+    "django.contrib.auth.backends.ModelBackend",
+    # allauth 백엔드
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+# 로그인 / 로그아웃 리디렉션
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+# allauth 계정 설정
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_VERIFICATION = "none"  # 개발 중에는 'none'
+SOCIALACCOUNT_QUERY_EMAIL = True
 
 
 # Internationalization
