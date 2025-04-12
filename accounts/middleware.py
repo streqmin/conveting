@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 User = get_user_model()
 seoul_tz = ZoneInfo("Asia/Seoul")
 
+
 def get_user_from_jwt(request):
     token = request.COOKIES.get("access_token")
     if not token:
@@ -24,6 +25,7 @@ def get_user_from_jwt(request):
         return user
     except (ExpiredSignatureError, InvalidTokenError, User.DoesNotExist):
         return None
+
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
