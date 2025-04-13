@@ -18,9 +18,5 @@
         <h3>소셜 계정으로 로그인</h3>
         <a href="{% provider_login_url 'google' %}">Google로 로그인</a>
         <a href="{% provider_login_url 'kakao' %}">Kakao로 로그인</a>
-        <script src="//accounts.google.com/gsi/client" async></script>
-        <div id="g_id_onload"
-             data-client_id="123-secret.apps.googleusercontent.com"
-             data-login_uri="{% url 'google_login_by_token' %}"></div>
     </body>
 </html>
