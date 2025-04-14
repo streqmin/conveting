@@ -97,3 +97,17 @@ class TokenRefreshView(View):
         response = JsonResponse({"message": "access token 재발급 성공"})
         response.set_cookie("access_token", new_access_token, httponly=True, samesite="Lax")
         return response
+
+
+class SocialLoginCallbackView(View):
+    def get(self, request):
+        access_token = getattr(request, "jwt_access_token", None)
+        refresh_token = getattr(request, "jwt_refresh_token", None)
+
+        if access_token is None:
+            return HttpResponseBadRequest("로그인 실패: access token 이 존재하지 않습니다.")
+
+        response = redirect("/")
+        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
+        return response
