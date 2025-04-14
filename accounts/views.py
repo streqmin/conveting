@@ -8,6 +8,8 @@ from django.contrib.auth import authenticate, get_user_model
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo  # Python 3.9+
 
+from .tokens import generate_tokens_for_user
+
 seoul_tz = ZoneInfo("Asia/Seoul")
 
 User = get_user_model()
@@ -44,26 +46,7 @@ class LoginView(View):
             messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
             return render(request, "accounts/login.html", status=400)
 
-        now = datetime.now(tz=seoul_tz)
-
-        # access token: 15분 유효
-        access_payload = {
-            "user_id": str(user.id),
-            "username": user.username,
-            "exp": now + timedelta(minutes=15),
-            "iat": now,
-            "type": "access",
-        }
-        access_token = jwt.encode(access_payload, settings.SECRET_KEY, algorithm="HS256")
-
-        # refresh token: 7일 유효
-        refresh_payload = {
-            "user_id": str(user.id),
-            "exp": now + timedelta(days=7),
-            "iat": now,
-            "type": "refresh",
-        }
-        refresh_token = jwt.encode(refresh_payload, settings.SECRET_KEY, algorithm="HS256")
+        access_token, refresh_token = generate_tokens_for_user(user)
 
         response = JsonResponse({"message": "로그인 성공"})
         response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
