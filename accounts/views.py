@@ -5,14 +5,24 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model
+from django.contrib.sites.models import Site
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo  # Python 3.9+
+from allauth.socialaccount.adapter import get_adapter
+from allauth.socialaccount.models import SocialLogin, SocialApp
+from allauth.socialaccount.helpers import render_authentication_error
+from allauth.socialaccount.providers.oauth2.client import OAuth2Error
+
 
 from .tokens import generate_tokens_for_user
 
 seoul_tz = ZoneInfo("Asia/Seoul")
 
 User = get_user_model()
+
+
+def index(request):
+    return render(request, "accounts/index.html")
 
 
 class SignUpView(View):
@@ -35,7 +45,7 @@ class SignUpView(View):
 
 class LoginView(View):
     def get(self, request):
-        return render(request, "accounts/login.html")
+        return render(request, "account/login.html")
 
     def post(self, request):
         username = request.POST.get("username")
@@ -100,14 +110,48 @@ class TokenRefreshView(View):
 
 
 class SocialLoginCallbackView(View):
+    adapter_class = None  # 반드시 서브클래스에서 설정해야 함
+
     def get(self, request):
-        access_token = getattr(request, "jwt_access_token", None)
-        refresh_token = getattr(request, "jwt_refresh_token", None)
+        if self.adapter_class is None:
+            return HttpResponseBadRequest("Adapter가 정의되지 않았습니다.")
 
-        if access_token is None:
-            return HttpResponseBadRequest("로그인 실패: access token 이 존재하지 않습니다.")
+        try:
+            adapter = self.adapter_class(request)
+            provider = adapter.get_provider()
+            provider_id = provider.id
+            site = Site.objects.get_current(request)
+            try:
+                app = SocialApp.objects.get(provider=provider_id, sites=site)
+            except SocialApp.DoesNotExist:
+                return HttpResponseBadRequest(
+                    f"No SocialApp found for provider '{provider_id}' and site '{site}'"
+                )
 
-        response = redirect("/")
-        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
-        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
-        return response
+            client = adapter.get_client(request, app)
+            code = request.GET.get("code")
+
+            token = client.get_access_token(code)
+            sociallogin = adapter.complete_login(request, app, token, response=token)
+            sociallogin.token = token
+            sociallogin.state = SocialLogin.state_from_request(request)
+
+            # DB에 유저 저장 (세션 login 없이 직접 저장)
+            get_adapter(request).pre_social_login(request, sociallogin)
+            sociallogin.lookup()
+
+            user = sociallogin.user
+            user.set_unusable_password()  # 소셜 로그인 전용 비밀번호 없음
+            user.save()
+            sociallogin.account.user = user
+            sociallogin.account.save()
+
+            access_token, refresh_token = generate_tokens_for_user(user)
+
+            response = redirect("/")
+            response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+            response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
+            return response
+
+        except OAuth2Error as e:
+            return render_authentication_error(request, adapter.provider_id, exception=e)
