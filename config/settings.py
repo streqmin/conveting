@@ -53,6 +53,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "accounts.middleware.JWTAuthenticationMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "accounts.middleware.DisableSessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -65,13 +66,12 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
-        "APP": {
-            "client_id": "61132518239-6d012e5g8shr1v3gjtbppm98ipdojnn8.apps.googleusercontent.com",
-            "secret": "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",
-            "key": "",
+    },
+    "kakao": {
+        "AUTH_PARAMS": {
+            "prompt": "login",
         },
     },
-    "kakao": {"APP": {"client_id": "70e76dc07e2f31f0960a7e11e67129d1", "secret": "", "key": ""}},
 }
 
 
@@ -131,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SITE_ID = 1
+SITE_ID = 4
 
 AUTHENTICATION_BACKENDS = (
     # 기본 로그인 백엔드
@@ -151,8 +151,6 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_VERIFICATION = "none"  # 개발 중에는 'none'
 SOCIALACCOUNT_QUERY_EMAIL = True
-
-SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
 
 
 # Internationalization
