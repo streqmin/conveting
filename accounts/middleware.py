@@ -4,12 +4,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.utils.functional import SimpleLazyObject
 from django.utils.deprecation import MiddlewareMixin
-from jwt import ExpiredSignatureError, InvalidTokenError
-from zoneinfo import ZoneInfo
 
 
 User = get_user_model()
-seoul_tz = ZoneInfo("Asia/Seoul")
 
 
 def get_user_from_jwt(request):
@@ -23,10 +20,28 @@ def get_user_from_jwt(request):
             return None
         user = User.objects.get(id=payload.get("user_id"))
         return user
-    except (ExpiredSignatureError, InvalidTokenError, User.DoesNotExist):
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
         return None
 
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         request.user = SimpleLazyObject(lambda: get_user_from_jwt(request) or AnonymousUser())
+
+
+class DisableSessionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        # admin 페이지는 세션 허용
+        if request.path.startswith("/admin/"):
+            return response
+
+        # 그 외는 세션 저장 무력화
+        if hasattr(request, "session"):
+            request.session.save = lambda: None
+
+        return response
