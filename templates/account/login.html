@@ -18,5 +18,11 @@
         <h3>소셜 계정으로 로그인</h3>
         <a href="{% provider_login_url 'google' %}">Google로 로그인</a>
         <a href="{% provider_login_url 'kakao' %}">Kakao로 로그인</a>
+        <hr>
+        <h3>📋 렌더링된 소셜 프로바이더 목록</h3>
+        <ul>
+            {% get_providers as social_providers %}
+            {% for provider in social_providers %}<li>{{ provider.id }}</li>{% endfor %}
+        </ul>
     </body>
 </html>
