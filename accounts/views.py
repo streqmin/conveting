@@ -110,42 +110,37 @@ class TokenRefreshView(View):
 
 
 class SocialLoginCallbackView(View):
-    adapter_class = None  # 반드시 서브클래스에서 설정해야 함
+    adapter_class = None
 
     def get(self, request):
         if self.adapter_class is None:
-            return HttpResponseBadRequest("Adapter가 정의되지 않았습니다.")
+            return HttpResponseBadRequest("adapter_class가 정의되지 않았습니다.")
 
         try:
-            adapter = self.adapter_class(request)
-            provider = adapter.get_provider()
+            # 1. provider adapter 생성
+            provider_adapter = self.adapter_class(request)
+            provider = provider_adapter.get_provider()
             provider_id = provider.id
             site = Site.objects.get_current(request)
+
+            # 2. SocialApp 확인
             try:
                 app = SocialApp.objects.get(provider=provider_id, sites=site)
             except SocialApp.DoesNotExist:
                 return HttpResponseBadRequest(
-                    f"No SocialApp found for provider '{provider_id}' and site '{site}'"
+                    f"SocialApp이 '{provider_id}'와 '{site}'에 대해 설정되지 않았습니다."
                 )
 
-            client = adapter.get_client(request, app)
+            # 3. 토큰 및 사용자 정보 획득
+            client = provider_adapter.get_client(request, app)
             code = request.GET.get("code")
-
             token = client.get_access_token(code)
-            sociallogin = adapter.complete_login(request, app, token, response=token)
-            sociallogin.token = token
-            sociallogin.state = SocialLogin.state_from_request(request)
+            sociallogin = provider_adapter.complete_login(request, app, token, response=token)
 
-            # DB에 유저 저장 (세션 login 없이 직접 저장)
-            get_adapter(request).pre_social_login(request, sociallogin)
-            sociallogin.lookup()
+            # 4. 사용자 생성 or 조회 (AccountAdapter 활용)
+            user = get_adapter(request).save_user(request, sociallogin)
 
-            user = sociallogin.user
-            user.set_unusable_password()  # 소셜 로그인 전용 비밀번호 없음
-            user.save()
-            sociallogin.account.user = user
-            sociallogin.account.save()
-
+            # 5. JWT 발급 및 쿠키 저장
             access_token, refresh_token = generate_tokens_for_user(user)
 
             response = redirect("/")
@@ -154,4 +149,4 @@ class SocialLoginCallbackView(View):
             return response
 
         except OAuth2Error as e:
-            return render_authentication_error(request, adapter.provider_id, exception=e)
+            return render_authentication_error(request, provider.id, exception=e)
