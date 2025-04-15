@@ -74,6 +74,8 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
+
 
 ROOT_URLCONF = "config.urls"
 
