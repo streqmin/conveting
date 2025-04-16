@@ -3,6 +3,8 @@ from django.urls import path, include
 from accounts.views import SocialLoginCallbackView, index
 from accounts.kakao_adapter import CustomKakaoOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -31,4 +33,4 @@ urlpatterns = [
         name="google_jwt_callback",
     ),
     path("accounts/", include("allauth.urls")),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
