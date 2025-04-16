@@ -1,13 +1,14 @@
 import jwt
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.views import View
-from django.views.decorators.csrf import csrf_protect
+from django.views.generic import UpdateView
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.contrib import messages
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.models import Site
-from django.utils.decorators import method_decorator
+from django.urls import reverse_lazy
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo  # Python 3.9+
 from allauth.socialaccount.adapter import get_adapter
@@ -15,7 +16,7 @@ from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 
-from .forms import CustomSignupForm
+from .forms import UserUpdateForm
 from .tokens import generate_tokens_for_user
 
 seoul_tz = ZoneInfo("Asia/Seoul")
@@ -25,6 +26,21 @@ User = get_user_model()
 
 def index(request):
     return render(request, "accounts/index.html")
+
+
+class MyPageView(UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = "accounts/mypage.html"
+    success_url = reverse_lazy("mypage")
+
+    def get_object(self):
+        user = self.request.user
+        print(user)
+        if not user.is_authenticated:
+            # 여기서 명시적으로 차단하지 않으면 ModelForm(instance=AnonymousUser)에서 ._meta 에러 발생
+            raise PermissionDenied("로그인이 필요한 페이지입니다.")
+        return user
 
 
 class LogoutView(View):
