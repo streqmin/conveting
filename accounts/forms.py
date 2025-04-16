@@ -31,3 +31,16 @@ class CustomSignupForm(SignupForm):
         )
 
         return user
+
+
+class UserUpdateForm(forms.ModelForm):
+    profile_image = forms.ImageField(label="프로필 이미지", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "사용자명"
+        self.fields["email"].label = "이메일"
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "profile_image"]
