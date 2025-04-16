@@ -1,19 +1,21 @@
 import jwt
 from django.conf import settings
 from django.views import View
+from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.sites.models import Site
+from django.utils.decorators import method_decorator
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo  # Python 3.9+
 from allauth.socialaccount.adapter import get_adapter
-from allauth.socialaccount.models import SocialLogin, SocialApp
+from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 
-
+from .forms import CustomSignupForm
 from .tokens import generate_tokens_for_user
 
 seoul_tz = ZoneInfo("Asia/Seoul")
@@ -23,45 +25,6 @@ User = get_user_model()
 
 def index(request):
     return render(request, "accounts/index.html")
-
-
-class SignUpView(View):
-    def get(self, request):
-        return render(request, "accounts/signup.html")
-
-    def post(self, request):
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-
-        if not username or not password:
-            return HttpResponseBadRequest("아이디와 비밀번호는 필수입니다.")
-
-        if User.objects.filter(username=username).exists():
-            return HttpResponseBadRequest("이미 존재하는 사용자명입니다.")
-
-        User.objects.create_user(username=username, password=password)
-        return JsonResponse({"message": "회원가입 성공"}, status=201)
-
-
-class LoginView(View):
-    def get(self, request):
-        return render(request, "account/login.html")
-
-    def post(self, request):
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-
-        user = authenticate(request, username=username, password=password)
-        if user is None:
-            messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
-            return render(request, "accounts/login.html", status=400)
-
-        access_token, refresh_token = generate_tokens_for_user(user)
-
-        response = JsonResponse({"message": "로그인 성공"})
-        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
-        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
-        return response
 
 
 class LogoutView(View):
