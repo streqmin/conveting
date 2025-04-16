@@ -1,0 +1,17 @@
+<h2>마이페이지</h2>
+<p>
+    <strong>가입 방식:</strong> {{ user.social_type }}
+</p>
+<p>
+    <strong>가입일:</strong> {{ user.created_at }}
+</p>
+{% if user.profile_image %}
+    <img src="{{ user.profile_image.url }}"
+         alt="프로필 이미지"
+         style="width: 120px" />
+{% endif %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">수정하기</button>
+</form>
