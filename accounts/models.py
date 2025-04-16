@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 import uuid
+import os
 
 
 class UserManager(BaseUserManager):
@@ -56,6 +57,13 @@ class UserManager(BaseUserManager):
         return self._create_user(username=username, password=None, **extra_fields)
 
 
+def profile_image_upload_path(instance, filename):
+    ext = filename.split(".")[-1]
+    unique_id = uuid.uuid4().hex[:8]
+    new_filename = f"{instance.username}_{unique_id}.{ext}"
+    return os.path.join("profile_images", new_filename)
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     class SocialType(models.TextChoices):
         EMAIL = "email", "Email"
@@ -66,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=255, blank=True, null=True)
     password = models.CharField(max_length=255, blank=True, null=True)
-    profile_image = models.CharField(max_length=500, blank=True, null=True)
+    profile_image = models.ImageField(upload_to=profile_image_upload_path, blank=True, null=True)
     social_type = models.CharField(
         max_length=20, choices=SocialType.choices, default=SocialType.EMAIL
     )
