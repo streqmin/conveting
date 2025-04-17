@@ -31,3 +31,19 @@ class CustomSignupForm(SignupForm):
         )
 
         return user
+
+class CustomLoginForm(forms.Form):
+    username = forms.CharField(label="사용자명", max_length=30)
+    password = forms.CharField(label="비밀번호", widget=forms.PasswordInput)
+
+class UserUpdateForm(forms.ModelForm):
+    profile_image = forms.ImageField(label="프로필 이미지", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "사용자명"
+        self.fields["email"].label = "이메일"
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "profile_image"]

@@ -1,21 +1,22 @@
 import jwt
 from django.conf import settings
 from django.views import View
-from django.views.decorators.csrf import csrf_protect
+from django.views.generic import UpdateView
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.contrib import messages
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.models import Site
-from django.utils.decorators import method_decorator
+from django.urls import reverse_lazy
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo  # Python 3.9+
 from allauth.socialaccount.adapter import get_adapter
+from allauth.account.utils import perform_login
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 
-from .forms import CustomSignupForm
+from .forms import CustomLoginForm, UserUpdateForm
 from .tokens import generate_tokens_for_user
 
 seoul_tz = ZoneInfo("Asia/Seoul")
@@ -23,8 +24,45 @@ seoul_tz = ZoneInfo("Asia/Seoul")
 User = get_user_model()
 
 
+class AdminJWTLoginView(View):
+    def get(self, request):
+        return render(request, "accounts/admin_login.html")
+
+    def post(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is None or not user.is_staff:
+            return HttpResponseBadRequest("유효한 관리자 계정이 아닙니다.")
+
+        access_token, refresh_token = generate_tokens_for_user(user)
+
+        response = redirect("/admin/")
+        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
+
+        return response
+
+
 def index(request):
     return render(request, "accounts/index.html")
+
+
+class MyPageView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = "accounts/mypage.html"
+    success_url = reverse_lazy("mypage")
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_edit_mode"] = self.request.GET.get("edit") == "true"
+        return context
 
 
 class LogoutView(View):
@@ -69,6 +107,32 @@ class TokenRefreshView(View):
 
         response = JsonResponse({"message": "access token 재발급 성공"})
         response.set_cookie("access_token", new_access_token, httponly=True, samesite="Lax")
+        return response
+
+
+class JWTLoginView(View):
+    def get(self, request):
+        form = CustomLoginForm()
+        return render(request, "accounts/login.html", {"form": form})
+
+    def post(self, request):
+        form = CustomLoginForm(request.POST)
+        if not form.is_valid():
+            return render(request, "accounts/login.html", {"form": form})
+
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            form.add_error(None, "아이디 또는 비밀번호가 올바르지 않습니다.")
+            return render(request, "accounts/login.html", {"form": form})
+
+        access_token, refresh_token = generate_tokens_for_user(user)
+
+        response = redirect("mypage")
+        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
         return response
 
 

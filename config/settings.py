@@ -46,12 +46,11 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.kakao",
     # 커스텀 앱
-    "accounts",
+    "accounts.apps.AccountsConfig",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "accounts.middleware.JWTAuthenticationMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "accounts.middleware.DisableSessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -139,6 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 SITE_ID = 4
 
 AUTHENTICATION_BACKENDS = (
+    "accounts.backends.JWTAuthenticationBackend",
     # 기본 로그인 백엔드
     "django.contrib.auth.backends.ModelBackend",
     # allauth 백엔드
