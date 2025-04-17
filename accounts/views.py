@@ -5,7 +5,7 @@ from django.views import View
 from django.views.generic import UpdateView
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.models import Site
 from django.urls import reverse_lazy
@@ -24,11 +24,41 @@ seoul_tz = ZoneInfo("Asia/Seoul")
 User = get_user_model()
 
 
+class AdminJWTLoginView(View):
+    def get(self, request):
+        return render(request, "accounts/admin_login.html")
+
+    def post(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is None or not user.is_staff:
+            return HttpResponseBadRequest("유효한 관리자 계정이 아닙니다.")
+
+        # JWT 발급
+        payload = {
+            "user_id": str(user.id),
+            "username": user.username,
+            "type": "access",
+            "exp": datetime.now(seoul_tz) + timedelta(minutes=30),
+            "iat": datetime.now(seoul_tz),
+        }
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+
+        # 쿠키에 저장하고 admin 리디렉션
+        response = redirect("/admin/")
+        response.set_cookie("access_token", token, httponly=True, samesite="Lax")
+
+        return response
+
+
 def index(request):
     return render(request, "accounts/index.html")
 
 
-class MyPageView(UpdateView):
+class MyPageView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
     template_name = "accounts/mypage.html"
