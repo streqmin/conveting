@@ -12,6 +12,7 @@ from django.urls import reverse_lazy
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo  # Python 3.9+
 from allauth.socialaccount.adapter import get_adapter
+from allauth.account.utils import perform_login
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
@@ -68,7 +69,6 @@ class MyPageView(LoginRequiredMixin, UpdateView):
         user = self.request.user
         print(user)
         if not user.is_authenticated:
-            # 여기서 명시적으로 차단하지 않으면 ModelForm(instance=AnonymousUser)에서 ._meta 에러 발생
             raise PermissionDenied("로그인이 필요한 페이지입니다.")
         return user
 
@@ -117,6 +117,29 @@ class TokenRefreshView(View):
         response.set_cookie("access_token", new_access_token, httponly=True, samesite="Lax")
         return response
 
+
+class JWTLoginView(View):
+    def get(self, request):
+        return render(request, "accounts/login.html")  # 로그인 폼
+
+    def post(self, request):
+        login_id = request.POST.get("login")  # username 또는 email
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=login_id, password=password)
+        if user is None:
+            return HttpResponseBadRequest("아이디 또는 비밀번호가 올바르지 않습니다.")
+
+        # 로그인 수행 (세션은 사용되지 않지만 로그인 signal은 발생시킴)
+        perform_login(request, user, email_verification="optional")
+
+        # JWT 발급
+        access_token, refresh_token = generate_tokens_for_user(user)
+
+        response = redirect("/")
+        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
+        return response
 
 class SocialLoginCallbackView(View):
     adapter_class = None
