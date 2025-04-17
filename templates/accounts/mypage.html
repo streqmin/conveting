@@ -1,17 +1,40 @@
 <h2>마이페이지</h2>
 <p>
-    <strong>가입 방식:</strong> {{ user.social_type }}
+    <strong>가입 방식:</strong> {{ user.get_social_type_display }}
 </p>
 <p>
-    <strong>가입일:</strong> {{ user.created_at }}
+    <strong>가입일:</strong> {{ user.created_at|date:"Y년 m월 d일 H:i" }}
 </p>
-{% if user.profile_image %}
-    <img src="{{ user.profile_image.url }}"
-         alt="프로필 이미지"
-         style="width: 120px" />
-{% endif %}
+{% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="프로필 이미지" style="width: 120px" />{% endif %}
+<hr>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">수정하기</button>
+    {% if is_edit_mode %}
+        <div>
+            {{ form.username.label_tag }}
+            <br />
+            {{ form.username }}
+        </div>
+        <div>
+            {{ form.email.label_tag }}
+            <br />
+            {{ form.email }}
+        </div>
+        <div>
+            {{ form.profile_image.label_tag }}
+            <br />
+            {{ form.profile_image }}
+        </div>
+        <button type="submit">저장</button>
+    {% else %}
+        <p>
+            <strong>사용자명:</strong> {{ user.username }}
+        </p>
+        <p>
+            <strong>이메일:</strong> {{ user.email|default:"-" }}
+        </p>
+        <a href="?edit=true">
+            <button type="button">수정하기</button>
+        </a>
+    {% endif %}
 </form>
