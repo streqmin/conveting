@@ -38,19 +38,11 @@ class AdminJWTLoginView(View):
         if user is None or not user.is_staff:
             return HttpResponseBadRequest("유효한 관리자 계정이 아닙니다.")
 
-        # JWT 발급
-        payload = {
-            "user_id": str(user.id),
-            "username": user.username,
-            "type": "access",
-            "exp": datetime.now(seoul_tz) + timedelta(minutes=30),
-            "iat": datetime.now(seoul_tz),
-        }
-        token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+        access_token, refresh_token = generate_tokens_for_user(user)
 
-        # 쿠키에 저장하고 admin 리디렉션
         response = redirect("/admin/")
-        response.set_cookie("access_token", token, httponly=True, samesite="Lax")
+        response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+        response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
 
         return response
 
@@ -140,6 +132,7 @@ class JWTLoginView(View):
         response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
         response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
         return response
+
 
 class SocialLoginCallbackView(View):
     adapter_class = None
