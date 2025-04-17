@@ -14,7 +14,6 @@ class JWTAuthenticationBackend(BaseBackend):
 
         token = request.COOKIES.get("access_token")
         if not token:
-            print("asdasd")
             return None
 
         try:

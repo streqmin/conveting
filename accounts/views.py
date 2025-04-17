@@ -59,9 +59,6 @@ class MyPageView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         user = self.request.user
-        print(user)
-        if not user.is_authenticated:
-            raise PermissionDenied("로그인이 필요한 페이지입니다.")
         return user
 
 
