@@ -8,22 +8,6 @@ from django.utils.deprecation import MiddlewareMixin
 User = get_user_model()
 
 
-def get_user_from_jwt(request):
-    token = request.COOKIES.get("access_token")
-    if not token:
-        return None
-
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        if payload.get("type") != "access":
-            return None
-        user_id = payload.get("user_id")
-        user = User.objects.get(id=user_id)
-        return user
-    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
-        return None
-
-
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         user = authenticate(request)
