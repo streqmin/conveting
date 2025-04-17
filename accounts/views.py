@@ -1,6 +1,5 @@
 import jwt
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
 from django.views import View
 from django.views.generic import UpdateView
 from django.shortcuts import render, redirect
@@ -17,7 +16,7 @@ from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 
-from .forms import UserUpdateForm
+from .forms import CustomLoginForm, UserUpdateForm
 from .tokens import generate_tokens_for_user
 
 seoul_tz = ZoneInfo("Asia/Seoul")
@@ -57,9 +56,13 @@ class MyPageView(LoginRequiredMixin, UpdateView):
     template_name = "accounts/mypage.html"
     success_url = reverse_lazy("mypage")
 
-    def get_object(self):
-        user = self.request.user
-        return user
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_edit_mode"] = self.request.GET.get("edit") == "true"
+        return context
 
 
 class LogoutView(View):
@@ -109,23 +112,25 @@ class TokenRefreshView(View):
 
 class JWTLoginView(View):
     def get(self, request):
-        return render(request, "accounts/login.html")  # 로그인 폼
+        form = CustomLoginForm()
+        return render(request, "accounts/login.html", {"form": form})
 
     def post(self, request):
-        login_id = request.POST.get("login")  # username 또는 email
-        password = request.POST.get("password")
+        form = CustomLoginForm(request.POST)
+        if not form.is_valid():
+            return render(request, "accounts/login.html", {"form": form})
 
-        user = authenticate(request, username=login_id, password=password)
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+
+        user = authenticate(request, username=username, password=password)
         if user is None:
-            return HttpResponseBadRequest("아이디 또는 비밀번호가 올바르지 않습니다.")
+            form.add_error(None, "아이디 또는 비밀번호가 올바르지 않습니다.")
+            return render(request, "accounts/login.html", {"form": form})
 
-        # 로그인 수행 (세션은 사용되지 않지만 로그인 signal은 발생시킴)
-        perform_login(request, user, email_verification="optional")
-
-        # JWT 발급
         access_token, refresh_token = generate_tokens_for_user(user)
 
-        response = redirect("/")
+        response = redirect("mypage")
         response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
         response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="Lax")
         return response
