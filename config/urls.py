@@ -11,4 +11,6 @@ urlpatterns = [
     path("admin/", jwt_admin_site.urls),
     path("", index),
     path("accounts/", include("accounts.urls")),
+    path("dogs/", include("dogs.urls")),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
