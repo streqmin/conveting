@@ -27,7 +27,7 @@ class DogPublicDetailView(DetailView):
 class DogCreateView(LoginRequiredMixin, CreateView):
     model = Dog
     form_class = DogForm
-    template_name = "dogs/dog_form.html"
+    template_name = "dogs/dog_page.html"
 
     def form_valid(self, form):
         form.instance.user = self.request.user
