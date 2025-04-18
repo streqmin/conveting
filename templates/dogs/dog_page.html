@@ -1,0 +1,75 @@
+<!-- templates/dogs/dog_page.html -->
+<h2>
+    {% if is_create_mode %}
+        반려견 등록
+    {% elif is_edit_mode %}
+        반려견 정보 수정
+    {% else %}
+        반려견 정보
+    {% endif %}
+</h2>
+{% if is_create_mode or is_edit_mode %}
+    <!-- 등록 또는 수정 form -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <div>
+                {{ field.label_tag }}
+                <br>
+                {{ field }}
+                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                {% for error in field.errors %}<div style="color: red">{{ error }}</div>{% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit">
+            {% if is_edit_mode %}
+                저장
+            {% else %}
+                등록
+            {% endif %}
+        </button>
+    </form>
+{% else %}
+    <!-- 단순 조회 -->
+    <p>
+        <strong>이름:</strong> {{ dog.name }}
+    </p>
+    {% if dog.photo %}
+        <p>
+            <img src="{{ dog.photo.url }}" alt="반려견 사진" style="width: 200px;">
+        </p>
+    {% endif %}
+    <p>
+        <strong>생년월일:</strong> {{ dog.birth_date|default:"-" }}
+    </p>
+    <p>
+        <strong>나이:</strong> {{ dog.age|default:"-" }}
+    </p>
+    <p>
+        <strong>성별:</strong>
+        {% if dog.gender == "male" %}
+            수컷
+        {% elif dog.gender == "female" %}
+            암컷
+        {% else %}
+            -
+        {% endif %}
+    </p>
+    <p>
+        <strong>견종:</strong> {{ dog.breed|default:"-" }}
+    </p>
+    <p>
+        <strong>몸무게:</strong> {{ dog.weight|default:"-" }}
+    </p>
+    <p>
+        <strong>중성화 여부:</strong> {{ dog.neutered|yesno:"예,아니오,-" }}
+    </p>
+    <p>
+        <strong>특이사항:</strong>
+        <br>
+        {{ dog.notes|linebreaksbr|default:"없음" }}
+    </p>
+    {% if request.user == dog.user %}
+        <a href="{% url 'dog_edit' pk=dog.id %}">수정하기</a>
+    {% endif %}
+{% endif %}

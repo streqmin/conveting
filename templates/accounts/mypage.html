@@ -43,21 +43,25 @@
         <ul>
             {% for dog in dogs %}
                 <li style="margin-bottom: 20px">
-                    <p>
-                        <strong>이름:</strong> {{ dog.name }}
-                    </p>
-                    <p>
-                        <strong>나이:</strong> {{ dog.age|default:"-" }}살
-                    </p>
-                    <p>
-                        <strong>견종:</strong> {{ dog.breed }}
-                    </p>
-                    {% if dog.photo %}
-                        <img src="{{ dog.photo.url }}"
-                             alt="반려견 사진"
-                             style="width: 120px;
-                                    border: 1px solid #ccc" />
-                    {% endif %}
+                    <a href="{% url 'dog_detail' pk=dog.id %}"
+                       style="text-decoration: none;
+                              color: inherit">
+                        <p>
+                            <strong>이름:</strong> {{ dog.name }}
+                        </p>
+                        <p>
+                            <strong>나이:</strong> {{ dog.age|default:"-" }}살
+                        </p>
+                        <p>
+                            <strong>견종:</strong> {{ dog.breed }}
+                        </p>
+                        {% if dog.photo %}
+                            <img src="{{ dog.photo.url }}"
+                                 alt="반려견 사진"
+                                 style="width: 120px;
+                                        border: 1px solid #ccc" />
+                        {% endif %}
+                    </a>
                 </li>
             {% endfor %}
         </ul>
