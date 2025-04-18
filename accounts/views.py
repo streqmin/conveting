@@ -50,6 +50,7 @@ def index(request):
     return render(request, "accounts/index.html")
 
 
+
 class MyPageView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
@@ -62,7 +63,9 @@ class MyPageView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_edit_mode"] = self.request.GET.get("edit") == "true"
+        context["dogs"] = self.request.user.dogs.all()
         return context
+
 
 
 class LogoutView(View):

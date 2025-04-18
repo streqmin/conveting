@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.kakao",
     # 커스텀 앱
     "accounts.apps.AccountsConfig",
+    "dogs",
 ]
 
 MIDDLEWARE = [
