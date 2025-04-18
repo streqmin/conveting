@@ -37,4 +37,31 @@
             <button type="button">수정하기</button>
         </a>
     {% endif %}
+    <hr>
+    <h3>반려견 목록</h3>
+    {% if dogs %}
+        <ul>
+            {% for dog in dogs %}
+                <li style="margin-bottom: 20px">
+                    <p>
+                        <strong>이름:</strong> {{ dog.name }}
+                    </p>
+                    <p>
+                        <strong>나이:</strong> {{ dog.age|default:"-" }}살
+                    </p>
+                    <p>
+                        <strong>견종:</strong> {{ dog.breed }}
+                    </p>
+                    {% if dog.photo %}
+                        <img src="{{ dog.photo.url }}"
+                             alt="반려견 사진"
+                             style="width: 120px;
+                                    border: 1px solid #ccc" />
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>등록된 반려견이 없습니다.</p>
+    {% endif %}
 </form>
