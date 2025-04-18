@@ -9,12 +9,16 @@ from .models import Dog
 
 class DogPublicDetailView(DetailView):
     model = Dog
-    template_name = "dogs/dog_detail.html"
+    template_name = "dogs/dog_page.html"
     context_object_name = "dog"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_edit_mode"] = False
+        context.update({
+            "form": None,
+            "is_create_mode": False,
+            "is_edit_mode": False,
+        })
         return context
 
 
@@ -28,19 +32,22 @@ class DogCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy("dog_detail", kwargs={"dog_id": self.object.id})
+        return reverse_lazy("dog_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_edit_mode"] = False
+        context.update({
+            "dog": None,                      # 등록 시 dog 객체 없음
+            "is_create_mode": True,
+            "is_edit_mode": False,
+        })
         return context
 
 
 class DogUpdateView(LoginRequiredMixin, UpdateView):
     model = Dog
     form_class = DogForm
-    template_name = "dogs/dog_form.html"
-    pk_url_kwarg = "dog_id"
+    template_name = "dogs/dog_page.html"
     context_object_name = "dog"
 
     def dispatch(self, request, *args, **kwargs):
@@ -50,9 +57,12 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy("dog_detail", kwargs={"dog_id": self.object.id})
+        return reverse_lazy("dog_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_edit_mode"] = True
+        context.update({
+            "is_create_mode": False,
+            "is_edit_mode": True,
+        })
         return context
