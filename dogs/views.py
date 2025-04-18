@@ -14,11 +14,13 @@ class DogPublicDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            "form": None,
-            "is_create_mode": False,
-            "is_edit_mode": False,
-        })
+        context.update(
+            {
+                "form": None,
+                "is_create_mode": False,
+                "is_edit_mode": False,
+            }
+        )
         return context
 
 
@@ -36,11 +38,13 @@ class DogCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            "dog": None,                      # 등록 시 dog 객체 없음
-            "is_create_mode": True,
-            "is_edit_mode": False,
-        })
+        context.update(
+            {
+                "dog": None,  # 등록 시 dog 객체 없음
+                "is_create_mode": True,
+                "is_edit_mode": False,
+            }
+        )
         return context
 
 
@@ -61,8 +65,10 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            "is_create_mode": False,
-            "is_edit_mode": True,
-        })
+        context.update(
+            {
+                "is_create_mode": False,
+                "is_edit_mode": True,
+            }
+        )
         return context

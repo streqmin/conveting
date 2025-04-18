@@ -23,7 +23,31 @@ class Dog(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     gender = models.CharField(max_length=10, null=True, blank=True)
-    breed = models.CharField(max_length=100)
+    BREED_CHOICES = [
+        ("골든 리트리버", "골든 리트리버"),
+        ("래브라도 리트리버", "래브라도 리트리버"),
+        ("푸들", "푸들"),
+        ("포메라니안", "포메라니안"),
+        ("말티즈", "말티즈"),
+        ("시추", "시추"),
+        ("요크셔 테리어", "요크셔 테리어"),
+        ("비숑 프리제", "비숑 프리제"),
+        ("웰시 코기", "웰시 코기"),
+        ("프렌치 불도그", "프렌치 불도그"),
+        ("치와와", "치와와"),
+        ("미니어처 핀셔", "미니어처 핀셔"),
+        ("미니어처 슈나우저", "미니어처 슈나우저"),
+        ("시바 이누", "시바 이누"),
+        ("닥스훈트", "닥스훈트"),
+        ("보더 콜리", "보더 콜리"),
+        ("저먼 셰퍼드", "저먼 셰퍼드"),
+        ("도베르만", "도베르만"),
+        ("잭 러셀 테리어", "잭 러셀 테리어"),
+        ("시베리안 허스키", "시베리안 허스키"),
+        ("기타", "기타"),
+    ]
+
+    breed = models.CharField(max_length=100, choices=BREED_CHOICES)
     weight = models.FloatField(null=True, blank=True)
     neutered = models.BooleanField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)

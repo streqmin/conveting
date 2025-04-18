@@ -19,6 +19,7 @@ class DogForm(forms.ModelForm):
         widgets = {
             "birth_date": forms.DateInput(attrs={"type": "date"}),
             "gender": forms.Select(choices=[("male", "수컷"), ("female", "암컷")]),
+            "breed": forms.Select(),
             "notes": forms.Textarea(attrs={"rows": 4}),
         }
 
