@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import date
 from django.db import models
 from django.conf import settings
 
@@ -52,6 +53,16 @@ class Dog(models.Model):
     neutered = models.BooleanField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.birth_date:
+            today = date.today()
+            self.age = (
+                today.year
+                - self.birth_date.year
+                - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+            )
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "강아지"
