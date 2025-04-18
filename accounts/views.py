@@ -11,7 +11,6 @@ from django.urls import reverse_lazy
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo  # Python 3.9+
 from allauth.socialaccount.adapter import get_adapter
-from allauth.account.utils import perform_login
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
@@ -50,7 +49,6 @@ def index(request):
     return render(request, "accounts/index.html")
 
 
-
 class MyPageView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
@@ -65,7 +63,6 @@ class MyPageView(LoginRequiredMixin, UpdateView):
         context["is_edit_mode"] = self.request.GET.get("edit") == "true"
         context["dogs"] = self.request.user.dogs.all()
         return context
-
 
 
 class LogoutView(View):
