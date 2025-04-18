@@ -32,9 +32,11 @@ class CustomSignupForm(SignupForm):
 
         return user
 
+
 class CustomLoginForm(forms.Form):
     username = forms.CharField(label="사용자명", max_length=30)
     password = forms.CharField(label="비밀번호", widget=forms.PasswordInput)
+
 
 class UserUpdateForm(forms.ModelForm):
     profile_image = forms.ImageField(label="프로필 이미지", required=False)
