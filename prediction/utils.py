@@ -1,29 +1,29 @@
 import os
 import numpy as np
 from keras.api.models import load_model
-from keras.api.preprocessing.image import load_img, img_to_array
+from keras.api.preprocessing.image import img_to_array
 
 # 질환명 ↔ 코드 매핑
 eye_diseases = {
-    "결막염": "E0",
-    "궤양성 각막질환": "E1",
-    "백내장": "E2",
-    "비궤양성 각막질환": "E3",
-    "색소침착성각막염": "E4",
-    "안검 내반증": "E5",
+    "conjunctivitis": "E1",
+    "corneal_ulcer": "E2",
+    "cataract": "E3",
+    "nonulcer_keratitis": "E4",
+    "nonulcer_keratitis": "E5",
+    "entropion": "E6",
     "안검염": "E7",
-    "안검종양": "E7",
-    "유루증": "E8",
-    "핵경화": "E8",
+    "eyelid_tumor": "E8",
+    "epiphora": "E9",
+    "핵경화": "E10",
 }
 
 skin_diseases = {
-    "구진, 플라크": "A1",
-    "비듬, 각질, 상피성잔고리": "A2",
-    "태선화, 과다색소침착": "A3",
-    "농포, 여드름": "A4",
-    "미란, 궤양": "A5",
-    "결절, 종괴": "A6",
+    "papule_plaque": "A1",
+    "scale_collarette": "A2",
+    "lichen_hyperpig": "A3",
+    "pustule_acne": "A4",
+    "erosion_ulcer": "A5",
+    "nodule_mass": "A6",
 }
 
 
@@ -40,7 +40,7 @@ def load_models_from_dir(disease_map, model_dir, prefix_length=2):
             continue
 
         # 파일명에서 코드 추출
-        code = filename[:prefix_length]
+        code = filename.split("_")[0]
         model_path = os.path.join(model_dir, filename)
 
         for disease, expected_code in disease_map.items():
