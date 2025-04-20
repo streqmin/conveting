@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import PredictionRequestForm, PredictionResultForm
 from .models import DiseaseInfo
-from .utils import predict_diseases
+from .utils import run_diagnosis
 
 
 class PredictionCreateView(LoginRequiredMixin, View):
@@ -20,7 +20,7 @@ class PredictionCreateView(LoginRequiredMixin, View):
         image = form.cleaned_data["image"]
         predicted_part = form.cleaned_data["predicted_part"]
 
-        predictions = predict_diseases(image=image, part=predicted_part)
+        predictions = run_diagnosis(image=image, part=predicted_part)
 
         for pred in predictions:
             disease = DiseaseInfo.objects.get(code=pred["code"])
