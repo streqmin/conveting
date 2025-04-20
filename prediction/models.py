@@ -38,16 +38,21 @@ def prediction_image_path(instance, filename):
 
 
 class Prediction(models.Model):
+    class BodyPart(models.TextChoices):
+        EYE = "eye", "안구"
+        SKIN = "skin", "피부"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="사용자",
+        related_name="predictions",
     )
     dog = models.ForeignKey(
         Dog,
         on_delete=models.CASCADE,
         verbose_name="반려견",
+        related_name="predictions",
     )
 
     # 업로드한 원본 이미지
@@ -57,8 +62,18 @@ class Prediction(models.Model):
         verbose_name="질환 사진",
     )
 
-    predicted_part = models.CharField("예측 부위", max_length=50)
-    predicted_disease = models.CharField("예측 질환", max_length=100)
+    predicted_part = models.CharField(
+        "예측 부위",
+        max_length=10,
+        choices=BodyPart.choices,
+    )
+
+    predicted_disease = models.ForeignKey(
+        DiseaseInfo,
+        on_delete=models.CASCADE,
+        verbose_name="예측 질환",
+        related_name="predictions",
+    )
 
     probability = models.FloatField("예측 확률")
     is_normal = models.BooleanField("정상 여부", default=False)

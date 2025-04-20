@@ -13,4 +13,5 @@ urlpatterns = [
     path("", index),
     path("accounts/", include("accounts.urls")),
     path("dogs/", include("dogs.urls")),
+    path("prediction/", include("prediction.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
