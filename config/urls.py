@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from accounts.views import index, AdminJWTLoginView
 from accounts.admin_site import jwt_admin_site
 import dogs.admin_site
+import prediction.admin_site
 
 
 urlpatterns = [
