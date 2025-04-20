@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from dogs.models import Dog
 
 
 class DiseaseInfo(models.Model):
@@ -26,3 +28,43 @@ class DiseaseInfo(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def prediction_image_path(instance, filename):
+    instance_id = instance.id
+    user_id = instance.user_id
+    dog_id = instance.dog_id
+    return f"predictions/{user_id}/{dog_id}/{instance_id}/{filename}"
+
+
+class Prediction(models.Model):
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="사용자",
+    )
+    dog = models.ForeignKey(
+        Dog,
+        on_delete=models.CASCADE,
+        verbose_name="반려견",
+    )
+
+    # 업로드한 원본 이미지
+    image = models.ImageField(
+        upload_to=prediction_image_path,
+        max_length=500,
+        verbose_name="질환 사진",
+    )
+
+    predicted_part = models.CharField("예측 부위", max_length=50)
+    predicted_disease = models.CharField("예측 질환", max_length=100)
+
+    probability = models.FloatField("예측 확률")
+    is_normal = models.BooleanField("정상 여부", default=False)
+
+    created_at = models.DateTimeField("생성 시각", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "예측 결과"
+        verbose_name_plural = "예측 결과"
