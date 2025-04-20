@@ -70,46 +70,26 @@ def preprocess_image(img, target_size):
 
 
 def predict_diseases(img, model_dict):
-    """질환 모델 딕셔너리를 기반으로 전체 확률 예측"""
+    """질환 모델 딕셔너리를 기반으로 확률 예측 (정규화 없이)"""
     results = {}
     target_size = (224, 224)
     img_array = preprocess_image(img, target_size)
 
-    probabilities = []
     for disease, model in model_dict.items():
         prediction = model.predict(img_array)
-        probability = prediction[0][0]
-        probabilities.append(probability)
+        probability = float(prediction[0][0])
         results[disease] = probability
 
-    total_probability = sum(probabilities)
-    normalized_results = {
-        disease: (prob / total_probability) * 100 for disease, prob in results.items()
-    }
-
-    return normalized_results
+    return results
 
 
-def predict_eye_diseases(img, eye_models):
-    """안구 질환 중 확률이 높은 Top-2만 반환"""
-    full_results = predict_diseases(img, eye_models)
+def predict_top2_diseases(img, model_dict):
+    """모델 딕셔너리를 기반으로 상위 2개의 질환과 확률을 반환"""
+    full_results = predict_diseases(img, model_dict)
     top2 = sorted(full_results.items(), key=lambda x: x[1], reverse=True)[:2]
-    return dict(top2)
+    return top2
 
 
-def predict_skin_diseases(img, skin_models):
-    """피부 질환 중 확률이 높은 Top-2만 반환"""
-    full_results = predict_diseases(img, skin_models)
-    top2 = sorted(full_results.items(), key=lambda x: x[1], reverse=True)[:2]
-    return dict(top2)
-
-
-
-def run_diagnosis(image_path, diagnosis_part):
-    """진단 부위에 따라 적절한 예측 함수를 호출하는 메인 함수"""
-    if diagnosis_part == "eye":
-        return predict_eye_diseases(image_path)
-    elif diagnosis_part == "skin":
-        return predict_skin_diseases(image_path)
-    else:
-        raise ValueError("Invalid diagnosis part. Choose 'eye' or 'skin'.")
+def run_diagnosis(img, part):
+    model = {"eye": eye_models, "skin": skin_models}
+    return predict_top2_diseases(img, model[part])
