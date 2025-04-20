@@ -22,7 +22,10 @@ class PredictionCreateView(LoginRequiredMixin, View):
 
         predictions = run_diagnosis(image=image, part=predicted_part)
 
-        for code, pred in predictions:
+        threshold = 0.3
+        is_normal = all(prob < threshold for _, prob in predictions)
+
+        for code, prob in predictions:
             disease = DiseaseInfo.objects.get(code=code)
 
             result_form = PredictionResultForm(
@@ -32,8 +35,8 @@ class PredictionCreateView(LoginRequiredMixin, View):
                     "image": image,
                     "predicted_part": predicted_part,
                     "predicted_disease": disease.id,
-                    "probability": pred["probability"],
-                    "is_normal": False,
+                    "probability": prob,
+                    "is_normal": is_normal,
                 },
                 files={"image": image},
             )
@@ -41,7 +44,6 @@ class PredictionCreateView(LoginRequiredMixin, View):
             if result_form.is_valid():
                 result_form.save()
             else:
-                # 폼 유효성 실패 시 로그 남기거나 처리
                 print("예측 결과 저장 실패:", result_form.errors)
 
         return redirect("mypage")
