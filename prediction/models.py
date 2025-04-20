@@ -67,7 +67,7 @@ class Prediction(models.Model):
         max_length=10,
         choices=BodyPart.choices,
     )
-    
+
     predicted_disease = models.ForeignKey(
         DiseaseInfo,
         on_delete=models.CASCADE,
