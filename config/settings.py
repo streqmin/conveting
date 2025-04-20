@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # 커스텀 앱
     "accounts.apps.AccountsConfig",
     "dogs",
+    "prediction",
 ]
 
 MIDDLEWARE = [
