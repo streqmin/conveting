@@ -22,8 +22,8 @@ class PredictionCreateView(LoginRequiredMixin, View):
 
         predictions = run_diagnosis(image=image, part=predicted_part)
 
-        for pred in predictions:
-            disease = DiseaseInfo.objects.get(code=pred["code"])
+        for code, pred in predictions:
+            disease = DiseaseInfo.objects.get(code=code)
 
             result_form = PredictionResultForm(
                 data={
