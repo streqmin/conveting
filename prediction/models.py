@@ -46,11 +46,13 @@ class Prediction(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="사용자",
+        related_name="predictions",
     )
     dog = models.ForeignKey(
         Dog,
         on_delete=models.CASCADE,
         verbose_name="반려견",
+        related_name="predictions",
     )
 
     # 업로드한 원본 이미지
