@@ -5,6 +5,7 @@ from accounts.views import index, AdminJWTLoginView
 from accounts.admin_site import jwt_admin_site
 import dogs.admin_site
 import prediction.admin_site
+import post.admin_site
 
 
 urlpatterns = [
@@ -14,4 +15,5 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("dogs/", include("dogs.urls")),
     path("prediction/", include("prediction.urls")),
+    path("post/", include("post.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

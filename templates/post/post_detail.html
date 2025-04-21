@@ -1,0 +1,29 @@
+<h2>{{ post.title }}</h2>
+<p>
+    <strong>작성자:</strong> {{ post.user.username }}
+</p>
+<p>
+    <strong>반려견:</strong> {{ post.dog.name }}
+</p>
+<p>
+    <strong>견종:</strong> {{ post.breed }}
+</p>
+<p>
+    <strong>질환:</strong> {{ post.disease.name }}
+</p>
+<p>
+    <strong>질환 부위:</strong> {{ post.get_body_part_display }}
+</p>
+<p>
+    <strong>작성일:</strong> {{ post.created_at|date:"Y-m-d H:i" }}
+</p>
+{% if post.image %}
+    <div>
+        <img src="{{ post.image.url }}" style="max-width: 400px;" alt="게시글 이미지">
+    </div>
+{% endif %}
+<hr>
+<p>{{ post.content|linebreaks }}</p>
+<p>
+    <a href="{% url 'post_list' %}">← 게시글 목록으로 돌아가기</a>
+</p>
