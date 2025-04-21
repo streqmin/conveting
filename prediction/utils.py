@@ -62,10 +62,21 @@ skin_models = load_models_from_dir(skin_diseases, "./ai_weights/skin")
 
 
 def preprocess_image(img, target_size):
+    from PIL import Image
     """이미지를 Keras 모델에 맞게 전처리하는 함수"""
-    img_array = img_to_array(img)
+    # 1. InMemoryUploadedFile → PIL.Image 변환
+    pil_img = Image.open(img).convert("RGB")
+
+    # 2. 리사이즈
+    pil_img = pil_img.resize(target_size)
+
+    # 3. numpy array로 변환
+    img_array = img_to_array(pil_img)
+
+    # 4. 차원 확장 및 정규화
     img_array = np.expand_dims(img_array, axis=0)
-    img_array = img_array / 255.0  # 이미지 정규화
+    img_array = img_array / 255.0
+
     return img_array
 
 
