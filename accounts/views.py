@@ -63,10 +63,9 @@ class MyPageView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["is_edit_mode"] = self.request.GET.get("edit") == "true"
         context["dogs"] = self.request.user.dogs.all()
-        
+
         raw_predictions = (
-            Prediction.objects
-            .filter(user=self.request.user)
+            Prediction.objects.filter(user=self.request.user)
             .select_related("predicted_disease", "dog")
             .order_by("-created_at")
         )

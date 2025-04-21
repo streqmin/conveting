@@ -63,6 +63,7 @@ skin_models = load_models_from_dir(skin_diseases, "./ai_weights/skin")
 
 def preprocess_image(img, target_size):
     from PIL import Image
+
     """이미지를 Keras 모델에 맞게 전처리하는 함수"""
     # 1. InMemoryUploadedFile → PIL.Image 변환
     pil_img = Image.open(img).convert("RGB")
