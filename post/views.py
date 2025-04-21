@@ -1,10 +1,14 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView
 
-from .models import Post
+
+from .models import Post, PostLike
 from .forms import PostForm
 
 
@@ -87,3 +91,38 @@ class PostDetailView(DetailView):
     model = Post
     template_name = "post/post_detail.html"
     context_object_name = "post"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = self.object
+        user = self.request.user
+        context["has_liked"] = (
+            user.is_authenticated and PostLike.objects.filter(user=user, post=post).exists()
+        )
+        return context
+
+
+@login_required
+def toggle_like(request, post_id):
+    if request.method != "POST":
+        return HttpResponseBadRequest("잘못된 요청입니다.")
+
+    post = get_object_or_404(Post, id=post_id)
+    user = request.user
+
+    # PostLike를 가져오거나 없으면 생성
+    like, created = PostLike.objects.get_or_create(user=user, post=post)
+
+    if not created:
+        # 이미 눌렀던 경우: 삭제
+        like.delete()
+        liked = False
+    else:
+        liked = True
+
+    return JsonResponse(
+        {
+            "liked": liked,
+            "like_count": post.likes.count(),  # related_name="likes" 활용
+        }
+    )
