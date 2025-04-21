@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import PredictionCreateView
+from .views import PredictionCreateView, PredictionResultView
 
 urlpatterns = [
     path("create/", PredictionCreateView.as_view(), name="prediction_create"),
+    path("results/<str:request_id>/", PredictionResultView.as_view(), name="prediction_result"),
 ]

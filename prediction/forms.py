@@ -1,9 +1,5 @@
 from django import forms
 from .models import Prediction
-
-# predictions/forms.py
-from django import forms
-from .models import Prediction
 from dogs.models import Dog
 
 
@@ -35,4 +31,5 @@ class PredictionResultForm(forms.ModelForm):
             "predicted_disease",
             "probability",
             "is_normal",
+            "request_id",
         ]

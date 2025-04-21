@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.conf import settings
 from dogs.models import Dog
@@ -31,16 +32,23 @@ class DiseaseInfo(models.Model):
 
 
 def prediction_image_path(instance, filename):
-    instance_id = instance.id
+    from django.utils import timezone
+
     user_id = instance.user_id
     dog_id = instance.dog_id
-    return f"predictions/{user_id}/{dog_id}/{instance_id}/{filename}"
+    timestamp = timezone.now().strftime("%Y%m%H%d%M")
+    return f"predictions/{user_id}/{dog_id}/{timestamp}-{filename}"
 
 
 class Prediction(models.Model):
     class BodyPart(models.TextChoices):
         EYE = "eye", "안구"
         SKIN = "skin", "피부"
+
+    request_id = models.CharField(
+        max_length=36,
+        verbose_name="예측 요청 ID",
+    )
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

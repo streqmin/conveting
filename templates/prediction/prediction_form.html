@@ -1,0 +1,25 @@
+<h2>질환 예측 요청</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>
+        <label for="{{ form.dog.id_for_label }}">{{ form.dog.label }}</label>
+        <br />
+        {{ form.dog }}
+        {% if form.dog.errors %}<div class="error">{{ form.dog.errors }}</div>{% endif %}
+    </div>
+    <div>
+        <label for="{{ form.predicted_part.id_for_label }}">{{ form.predicted_part.label }}</label>
+        <br />
+        {{ form.predicted_part }}
+        {% if form.predicted_part.errors %}<div class="error">{{ form.predicted_part.errors }}</div>{% endif %}
+    </div>
+    <div>
+        <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+        <br />
+        {{ form.image }}
+        {% if form.image.errors %}<div class="error">{{ form.image.errors }}</div>{% endif %}
+    </div>
+    <div>
+        <button type="submit">예측 요청</button>
+    </div>
+</form>
