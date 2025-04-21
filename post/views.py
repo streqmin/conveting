@@ -45,6 +45,11 @@ class PostListView(ListView):
         if user_id:
             queryset = queryset.filter(user__id=user_id)
 
+        # 견종 필터
+        breed = self.request.GET.get("breed")
+        if breed:
+            queryset = queryset.filter(breed=breed)
+
         # 질환 ID 필터
         disease_id = self.request.GET.get("disease")
         if disease_id:
@@ -61,6 +66,9 @@ class PostListView(ListView):
         context = super().get_context_data(**kwargs)
         context["search_query"] = self.request.GET.get("q", "")
         context["selected_user"] = self.request.GET.get("user", "")
+        context["breeds"] = (
+            Post.objects.exclude(breed=None).values_list("breed", flat=True).distinct()
+        )
         context["selected_disease"] = self.request.GET.get("disease", "")
         context["selected_body_part"] = self.request.GET.get("body_part", "")
         context["diseases"] = (

@@ -9,6 +9,13 @@
                     {% if user_id|stringformat:"s" == selected_user %}selected{% endif %}>{{ username }}</option>
         {% endfor %}
     </select>
+    <select name="breed">
+        <option value="">전체 견종</option>
+        {% for breed in breeds %}
+            <option value="{{ breed }}"
+                    {% if breed == selected_breed %}selected{% endif %}>{{ breed }}</option>
+        {% endfor %}
+    </select>
     <select name="disease">
         <option value="">전체 질환</option>
         {% for disease_id, disease_name in diseases %}
