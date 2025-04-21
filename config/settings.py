@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "dogs",
     "prediction",
+    "post",
 ]
 
 MIDDLEWARE = [
