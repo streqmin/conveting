@@ -1,11 +1,15 @@
 from django.db import models
-from prediction.models import DiseaseInfo, Prediction
-from dogs.models import Dog
-
-
-from django.db import models
 from django.conf import settings
-from dogs.models import Dog  # dog 모델 위치에 맞게 import 경로 조정
+from dogs.models import Dog
+from prediction.models import DiseaseInfo, Prediction
+
+from django.utils import timezone
+
+
+def post_image_upload_path(instance, filename):
+    user_id = instance.user.id
+    timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
+    return f"posts/{user_id}/{timestamp}-{filename}"
 
 
 class Post(models.Model):
@@ -23,44 +27,18 @@ class Post(models.Model):
         related_name="posts",
         verbose_name="반려견",
     )
-    category = models.ForeignKey(
-        "PostCategory",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="posts",
-        verbose_name="카테고리",
-    )
-
     title = models.CharField("제목", max_length=200)
     content = models.TextField("내용")
-    image = models.CharField("이미지 경로", max_length=500, null=True, blank=True)
+    image = models.ImageField("이미지", upload_to=post_image_upload_path, null=True, blank=True)
 
-    created_at = models.DateTimeField("작성 시각", auto_now_add=True)
-    updated_at = models.DateTimeField("수정 시각", auto_now=True)
-
-    class Meta:
-        verbose_name = "게시글"
-        verbose_name_plural = "게시글"
-
-    def __str__(self):
-        return f"{self.title} - {self.user}"
-
-
-class PostCategory(models.Model):
+    # breed는 dog에서 자동 설정됨
     breed = models.CharField(
         max_length=50, choices=Dog.BREED_CHOICES, null=True, blank=True, verbose_name="견종"
     )
 
     disease = models.ForeignKey(
-        DiseaseInfo,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="post_categories",
-        verbose_name="질환",
+        DiseaseInfo, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="질환"
     )
-
     body_part = models.CharField(
         max_length=10,
         choices=Prediction.BodyPart.choices,
@@ -69,16 +47,14 @@ class PostCategory(models.Model):
         verbose_name="질환 부위",
     )
 
-    class Meta:
-        verbose_name = "게시글 카테고리"
-        verbose_name_plural = "게시글 카테고리"
+    created_at = models.DateTimeField("작성 시각", auto_now_add=True)
+    updated_at = models.DateTimeField("수정 시각", auto_now=True)
 
-    def __str__(self):
-        parts = []
-        if self.breed:
-            parts.append(self.breed)
-        if self.disease:
-            parts.append(self.disease.name)
-        if self.body_part:
-            parts.append(dict(Prediction.BodyPart.choices).get(self.body_part, self.body_part))
-        return " / ".join(parts) or "카테고리 없음"
+    class Meta:
+        verbose_name = "게시글"
+        verbose_name_plural = "게시글"
+
+    def save(self, *args, **kwargs):
+        if self.dog and self.dog.breed:
+            self.breed = self.dog.breed
+        super().save(*args, **kwargs)
