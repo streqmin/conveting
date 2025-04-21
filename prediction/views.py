@@ -28,6 +28,7 @@ class PredictionCreateView(LoginRequiredMixin, View):
         is_normal = all(prob < threshold for _, prob in predictions)
 
         request_id = uuid.uuid4()
+        request_id = str(request_id)
 
         for code, prob in predictions:
             disease = DiseaseInfo.objects.get(code=code)

@@ -15,6 +15,7 @@ from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.helpers import render_authentication_error
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 
+from prediction.models import Prediction
 from .forms import CustomLoginForm, UserUpdateForm
 from .tokens import generate_tokens_for_user
 
@@ -62,6 +63,28 @@ class MyPageView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["is_edit_mode"] = self.request.GET.get("edit") == "true"
         context["dogs"] = self.request.user.dogs.all()
+        
+        raw_predictions = (
+            Prediction.objects
+            .filter(user=self.request.user)
+            .select_related("predicted_disease", "dog")
+            .order_by("-created_at")
+        )
+
+        grouped = {}
+        for pred in raw_predictions:
+            key = pred.request_id
+            if key not in grouped:
+                grouped[key] = {
+                    "request_id": pred.request_id,
+                    "dog_name": pred.dog.name,
+                    "image": pred.image.url if pred.image else None,
+                    "results": [],
+                }
+            if len(grouped[key]["results"]) < 2:  # 최대 2개만 보여줌
+                grouped[key]["results"].append(pred)
+
+        context["predictions"] = list(grouped.values())
         return context
 
 
