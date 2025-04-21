@@ -58,3 +58,24 @@ class Post(models.Model):
         if self.dog and self.dog.breed:
             self.breed = self.dog.breed
         super().save(*args, **kwargs)
+
+
+class PostLike(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="post_likes",
+        verbose_name="사용자",
+    )
+    post = models.ForeignKey(
+        "Post",
+        on_delete=models.CASCADE,
+        related_name="likes",
+        verbose_name="게시글",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="생성 시각")
+
+    class Meta:
+        verbose_name = "게시글 좋아요"
+        verbose_name_plural = "게시글 좋아요 목록"
+        unique_together = ("user", "post")  # 중복 좋아요 방지

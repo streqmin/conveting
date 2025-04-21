@@ -24,6 +24,34 @@
 {% endif %}
 <hr>
 <p>{{ post.content|linebreaks }}</p>
+<form id="like-form" method="post" action="{% url 'toggle_like' post.id %}">
+    {% csrf_token %}
+    <button type="submit">
+        {% if has_liked %}
+            ♥ 좋아요 취소
+        {% else %}
+            ♡ 좋아요
+        {% endif %}
+    </button>
+</form>
+<p id="like-count">{{ post.likes.count }}명이 좋아합니다.</p>
+<script>
+document.getElementById("like-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const form = e.target;
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value,
+        },
+    })
+    .then(res => res.json())
+    .then(data => {
+        form.querySelector("button").innerText = data.liked ? "♥ 좋아요 취소" : "♡ 좋아요";
+        document.getElementById("like-count").innerText = `${data.like_count}명이 좋아합니다.`;
+    });
+});
+</script>
 <p>
     <a href="{% url 'post_list' %}">← 게시글 목록으로 돌아가기</a>
 </p>
