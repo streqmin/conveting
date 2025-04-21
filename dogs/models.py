@@ -64,6 +64,9 @@ class Dog(models.Model):
             )
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = "강아지"
         verbose_name_plural = "강아지"
