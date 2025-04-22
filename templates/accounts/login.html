@@ -1,0 +1,28 @@
+{% load  socialaccount %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        <h1>🔥 이 템플릿은 account/login.html 입니다</h1>
+        <h2>Login</h2>
+        <!-- 일반 로그인 폼 -->
+        <form method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">로그인</button>
+        </form>
+        <hr>
+        <!-- 소셜 로그인 버튼 -->
+        <h3>소셜 계정으로 로그인</h3>
+        <a href="{% provider_login_url 'google' %}">Google로 로그인</a>
+        <a href="{% provider_login_url 'kakao' %}">Kakao로 로그인</a>
+        <hr>
+        <h3>📋 렌더링된 소셜 프로바이더 목록</h3>
+        <ul>
+            {% get_providers as social_providers %}
+            {% for provider in social_providers %}<li>{{ provider.id }}</li>{% endfor %}
+        </ul>
+    </body>
+</html>
