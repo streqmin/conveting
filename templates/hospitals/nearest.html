@@ -1,0 +1,31 @@
+<h2>내 주변 동물병원</h2>
+<ul id="hospitals-list">
+</ul>
+<script>
+if (!navigator.geolocation) {
+  alert("이 브라우저는 위치 정보를 지원하지 않습니다");
+} else {
+  navigator.geolocation.getCurrentPosition(async pos => {
+    console.log("++++++++++++++++++++")
+    console.log(pos)
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const res = await fetch("{% url 'nearest_hospitals' %}?lat=" + lat + "&lng=" + lng);
+    if (!res.ok) return alert("병원 정보를 불러오지 못했습니다");
+    const list = await res.json();
+    const container = document.getElementById("hospitals-list");
+    list.forEach(h => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <strong>${h.name}</strong><br>
+        ${h.address}<br>
+        📞 ${h.phone}<br>
+        🚗 ${h.distance} km
+      `;
+      container.appendChild(li);
+    });
+  }, () => {
+    alert("위치 사용을 허용해야 주변 병원을 볼 수 있습니다");
+  });
+}
+</script>
