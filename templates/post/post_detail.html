@@ -24,7 +24,9 @@
 {% endif %}
 <hr>
 <p>{{ post.content|linebreaks }}</p>
-<form id="like-form" method="post" action="{% url 'toggle_like' post.id %}">
+<form id="like-form"
+      method="post"
+      action="{% url 'post_like_toggle' post.id %}">
     {% csrf_token %}
     <button type="submit">
         {% if has_liked %}
@@ -49,48 +51,89 @@
 <hr>
 {# 댓글 목록 #}
 {% for comment in post.comments.all %}
-    <div style="margin-bottom: 1em;">
-        <strong>{{ comment.user.username }}</strong> | {{ comment.created_at|date:"Y-m-d H:i" }}
-        <br>
-        {{ comment.content|linebreaks }}
-        {# 대댓글 작성 폼 토글 #}
-        <details>
-            <summary>답글 달기</summary>
-            <form method="post" action="{% url 'comment_create' post.id %}">
-                {% csrf_token %}
-                <textarea name="content" rows="2" placeholder="답글을 입력하세요..."></textarea>
-                <input type="hidden" name="parent_comment" value="{{ comment.id }}">
-                <button type="submit">답글 작성</button>
-            </form>
-        </details>
-        {# 대댓글 목록 #}
-        {% for reply in comment.replies.all %}
-            <div style="margin-left: 2em;
-                        border-left: 1px solid #ccc;
-                        padding-left: 1em">
-                <strong>{{ reply.user.username }}</strong> | {{ reply.created_at|date:"Y-m-d H:i" }}
-                <br>
-                {{ reply.content|linebreaks }}
-            </div>
-        {% endfor %}
-    </div>
+    {% if not comment.parent_comment %}
+        <div style="margin-bottom: 1em;">
+            <strong>{{ comment.user.username }}</strong> | {{ comment.created_at|date:"Y-m-d H:i" }}
+            <br>
+            {{ comment.content|linebreaks }}
+            {# 댓글 좋아요 버튼 #}
+            {% if comment.id in liked_comment_ids %}
+                <button class="like-btn" data-comment-id="{{ comment.id }}" data-liked="true">
+                    ❤️ <span class="like-count">{{ comment.likes.count }}</span>
+                </button>
+            {% else %}
+                <button class="like-btn"
+                        data-comment-id="{{ comment.id }}"
+                        data-liked="false">
+                    🤍 <span class="like-count">{{ comment.likes.count }}</span>
+                </button>
+            {% endif %}
+            {# 대댓글 작성 폼 토글 #}
+            <details>
+                <summary>답글 달기</summary>
+                <form method="post" action="{% url 'comment_create' post.id %}">
+                    {% csrf_token %}
+                    <textarea name="content" rows="2" placeholder="답글을 입력하세요..."></textarea>
+                    <input type="hidden" name="parent_comment" value="{{ comment.id }}">
+                    <button type="submit">답글 작성</button>
+                </form>
+            </details>
+            {# 대댓글 목록 #}
+            {% for reply in comment.replies.all %}
+                <div style="margin-left: 2em;
+                            border-left: 1px solid #ccc;
+                            padding-left: 1em">
+                    <strong>{{ reply.user.username }}</strong> | {{ reply.created_at|date:"Y-m-d H:i" }}
+                    <br>
+                    {{ reply.content|linebreaks }}
+                    {# 대댓글 좋아요 버튼 #}
+                    {% if reply.id in liked_comment_ids %}
+                        <button class="like-btn" data-comment-id="{{ reply.id }}" data-liked="true">
+                            ❤️ <span class="like-count">{{ reply.likes.count }}</span>
+                        </button>
+                    {% else %}
+                        <button class="like-btn" data-comment-id="{{ reply.id }}" data-liked="false">
+                            🤍 <span class="like-count">{{ reply.likes.count }}</span>
+                        </button>
+                    {% endif %}
+                    <details>
+                        <summary>답글 달기</summary>
+                        <form method="post" action="{% url 'comment_create' post.id %}">
+                            {% csrf_token %}
+                            <textarea name="content" rows="2" placeholder="답글을 입력하세요..."></textarea>
+                            <input type="hidden" name="parent_comment" value="{{ comment.id }}">
+                            <button type="submit">답글 작성</button>
+                        </form>
+                    </details>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 {% empty %}
     <p>아직 댓글이 없습니다.</p>
 {% endfor %}
 <script>
-    document.getElementById("like-form").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch(form.action, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value,
-            },
-        })
-        .then(res => res.json())
-        .then(data => {
-            form.querySelector("button").innerText = data.liked ? "♥ 좋아요 취소" : "♡ 좋아요";
-            document.getElementById("like-count").innerText = `${data.like_count}명이 좋아합니다.`;
+    document.querySelectorAll(".like-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+            const commentId = this.dataset.commentId;
+            const liked = this.dataset.liked === "true";
+    
+            fetch(`/post/comment/${commentId}/like/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json",
+                },
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                // 업데이트된 좋아요 상태 반영
+                this.dataset.liked = data.liked;
+                this.querySelector(".like-count").textContent = data.like_count;
+                this.innerHTML =
+                    (data.liked ? "❤️" : "🤍") +
+                    ` <span class="like-count">${data.like_count}</span>`;
+            });
         });
     });
 </script>
