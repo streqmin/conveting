@@ -78,7 +78,7 @@ class PostLike(models.Model):
     class Meta:
         verbose_name = "게시글 좋아요"
         verbose_name_plural = "게시글 좋아요 목록"
-        unique_together = ("user", "post")  # 중복 좋아요 방지
+        unique_together = ("user", "post")
 
 
 class Comment(models.Model):
@@ -114,3 +114,24 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.content[:20]}"
+
+
+class CommentLike(models.Model):
+    comment = models.ForeignKey(
+        "post.Comment",
+        on_delete=models.CASCADE,
+        related_name="likes",
+        verbose_name="댓글",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="comment_likes",
+        verbose_name="사용자",
+    )
+    created_at = models.DateTimeField("좋아요한 시각", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "댓글 좋아요"
+        verbose_name_plural = "댓글 좋아요 목록"
+        unique_together = ("comment", "user")
