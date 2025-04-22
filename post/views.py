@@ -8,8 +8,8 @@ from django.views.generic.edit import CreateView
 from django.views.generic import ListView, DetailView
 
 
-from .models import Post, PostLike
-from .forms import PostForm
+from .models import Post, PostLike, Comment
+from .forms import PostForm, CommentForm
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -91,7 +91,7 @@ class PostDetailView(DetailView):
     model = Post
     template_name = "post/post_detail.html"
     context_object_name = "post"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.object
@@ -99,6 +99,7 @@ class PostDetailView(DetailView):
         context["has_liked"] = (
             user.is_authenticated and PostLike.objects.filter(user=user, post=post).exists()
         )
+        context["comment_form"] = CommentForm()
         return context
 
 
@@ -126,3 +127,17 @@ def toggle_like(request, post_id):
             "like_count": post.likes.count(),  # related_name="likes" 활용
         }
     )
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+
+    def form_valid(self, form):
+        post = get_object_or_404(Post, id=self.kwargs["post_id"])
+        form.instance.post = post
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("post_detail", kwargs={"pk": self.kwargs["post_id"]})

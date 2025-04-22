@@ -35,23 +35,62 @@
     </button>
 </form>
 <p id="like-count">{{ post.likes.count }}명이 좋아합니다.</p>
-<script>
-document.getElementById("like-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    const form = e.target;
-    fetch(form.action, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value,
-        },
-    })
-    .then(res => res.json())
-    .then(data => {
-        form.querySelector("button").innerText = data.liked ? "♥ 좋아요 취소" : "♡ 좋아요";
-        document.getElementById("like-count").innerText = `${data.like_count}명이 좋아합니다.`;
-    });
-});
-</script>
 <p>
     <a href="{% url 'post_list' %}">← 게시글 목록으로 돌아가기</a>
 </p>
+{# templates/post/post_detail.html #}
+<h2>댓글</h2>
+{# 댓글 작성 폼 (루트 댓글용) #}
+<form method="post" action="{% url 'comment_create' post.id %}">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">댓글 작성</button>
+</form>
+<hr>
+{# 댓글 목록 #}
+{% for comment in post.comments.all %}
+    <div style="margin-bottom: 1em;">
+        <strong>{{ comment.user.username }}</strong> | {{ comment.created_at|date:"Y-m-d H:i" }}
+        <br>
+        {{ comment.content|linebreaks }}
+        {# 대댓글 작성 폼 토글 #}
+        <details>
+            <summary>답글 달기</summary>
+            <form method="post" action="{% url 'comment_create' post.id %}">
+                {% csrf_token %}
+                <textarea name="content" rows="2" placeholder="답글을 입력하세요..."></textarea>
+                <input type="hidden" name="parent_comment" value="{{ comment.id }}">
+                <button type="submit">답글 작성</button>
+            </form>
+        </details>
+        {# 대댓글 목록 #}
+        {% for reply in comment.replies.all %}
+            <div style="margin-left: 2em;
+                        border-left: 1px solid #ccc;
+                        padding-left: 1em">
+                <strong>{{ reply.user.username }}</strong> | {{ reply.created_at|date:"Y-m-d H:i" }}
+                <br>
+                {{ reply.content|linebreaks }}
+            </div>
+        {% endfor %}
+    </div>
+{% empty %}
+    <p>아직 댓글이 없습니다.</p>
+{% endfor %}
+<script>
+    document.getElementById("like-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const form = e.target;
+        fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value,
+            },
+        })
+        .then(res => res.json())
+        .then(data => {
+            form.querySelector("button").innerText = data.liked ? "♥ 좋아요 취소" : "♡ 좋아요";
+            document.getElementById("like-count").innerText = `${data.like_count}명이 좋아합니다.`;
+        });
+    });
+</script>

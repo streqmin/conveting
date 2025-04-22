@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post
+from .models import Post, Comment
 from dogs.models import Dog
 
 
@@ -29,3 +29,13 @@ class PostForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user:
             self.fields["dog"].queryset = Dog.objects.filter(user=user)
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["content", "parent_comment"]
+        widgets = {
+            "content": forms.Textarea(attrs={"rows": 3, "placeholder": "댓글을 입력하세요..."}),
+            "parent_comment": forms.HiddenInput(),
+        }
