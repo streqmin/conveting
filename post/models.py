@@ -79,3 +79,38 @@ class PostLike(models.Model):
         verbose_name = "게시글 좋아요"
         verbose_name_plural = "게시글 좋아요 목록"
         unique_together = ("user", "post")  # 중복 좋아요 방지
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(
+        "post.Post",
+        on_delete=models.CASCADE,
+        related_name="comments",
+        verbose_name="게시글",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="comments",
+        verbose_name="작성자",
+    )
+    content = models.TextField("댓글 내용")
+
+    parent_comment = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="replies",
+        verbose_name="부모 댓글",
+    )
+
+    created_at = models.DateTimeField("작성 시각", auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        verbose_name = "댓글"
+        verbose_name_plural = "댓글 목록"
+
+    def __str__(self):
+        return f"{self.user} - {self.content[:20]}"
