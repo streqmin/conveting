@@ -140,7 +140,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         post = get_object_or_404(Post, id=self.kwargs["post_id"])
         form.instance.post = post
         form.instance.user = self.request.user
-        
+
         parent = form.cleaned_data.get("parent_comment")
         if parent:
             if parent.parent_comment:

@@ -6,6 +6,7 @@ from accounts.admin_site import jwt_admin_site
 import dogs.admin_site
 import prediction.admin_site
 import post.admin_site
+import hospitals.admin_site
 
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path("dogs/", include("dogs.urls")),
     path("prediction/", include("prediction.urls")),
     path("post/", include("post.urls")),
+    path("hospitals/", include("hospitals.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
