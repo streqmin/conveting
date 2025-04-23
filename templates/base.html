@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'globals.css' %}">
+        <link rel="stylesheet" href="{% static 'styleguide.css' %}">
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+        <title>
+            {% block title %}
+                Conveting
+            {% endblock title %}
+        </title>
+    </head>
+    <body>
+        {% include "common/nav.html" %}
+        {% block content %}
+        {% endblock content %}
+    </body>
+</html>
