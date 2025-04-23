@@ -27,7 +27,7 @@
     position: relative;
     width: fit-content;
     margin-top: -1px;
-    font-family: "Poppins-Bold", Helvetica;
+    font-family: "Poppins-Bold";
     font-weight: 700;
     color: var(--defaultblack);
     font-size: 20px;
@@ -61,7 +61,7 @@
     position: relative;
     width: fit-content;
     margin-top: -2px;
-    font-family: "Poppins-SemiBold", Helvetica;
+    font-family: "Poppins-SemiBold";
     font-weight: 600;
     color: var(--orange-500);
     font-size: 20px;
@@ -85,7 +85,6 @@
     margin-top: -1px;
     padding: 4px 10px;
     font-family: "Poppins-SemiBold";
-    /* font-weight: 600; */
     color: var(--defaultblack);
     font-size: 20px;
     letter-spacing: 0;
@@ -98,11 +97,6 @@
     border-bottom-style: solid;
     border-color: var(--orange-500);
     display: inline-flex;
-    /* align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 4px 10px;
-    position: relative;
-    flex: 0 0 auto; */
+    font-family: "Poppins-Bold";
     color: var(--orange-500);
 }
