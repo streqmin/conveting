@@ -1,37 +1,40 @@
-<h2>예측 결과</h2>
-<p>
-    <strong>반려견:</strong> {{ dog.name }}
-</p>
-<p>
-    <strong>예측 부위:</strong> {{ part }}
-</p>
-<p>
-    <strong>예측 시각:</strong> {{ created_at|date:"Y년 m월 d일 H:i" }}
-</p>
-<hr>
-<table border="1" cellpadding="8">
-    <thead>
-        <tr>
-            <th>질환명</th>
-            <th>정상 여부</th>
-            <th>예측 확률</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for result in predictions %}
+{% extends "base.html" %}
+{% block content %}
+    <h2>예측 결과</h2>
+    <p>
+        <strong>반려견:</strong> {{ dog.name }}
+    </p>
+    <p>
+        <strong>예측 부위:</strong> {{ part }}
+    </p>
+    <p>
+        <strong>예측 시각:</strong> {{ created_at|date:"Y년 m월 d일 H:i" }}
+    </p>
+    <hr>
+    <table border="1" cellpadding="8">
+        <thead>
             <tr>
-                <td>{{ result.predicted_disease.name }}</td>
-                <td>
-                    {% if result.is_normal %}
-                        정상
-                    {% else %}
-                        이상
-                    {% endif %}
-                </td>
-                <td>{{ result.probability|floatformat:2 }}</td>
+                <th>질환명</th>
+                <th>정상 여부</th>
+                <th>예측 확률</th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<br>
-<a href="{% url 'prediction_create' %}">다시 예측하기</a>
+        </thead>
+        <tbody>
+            {% for result in predictions %}
+                <tr>
+                    <td>{{ result.predicted_disease.name }}</td>
+                    <td>
+                        {% if result.is_normal %}
+                            정상
+                        {% else %}
+                            이상
+                        {% endif %}
+                    </td>
+                    <td>{{ result.probability|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'prediction_create' %}">다시 예측하기</a>
+{% endblock content %}

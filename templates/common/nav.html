@@ -1,25 +1,32 @@
 {% load static %}
 <div class="header">
-    <div class="logo">
-        <img class="group"
-             src="{% static 'img/group.png' %}"
-             width="auto"
-             height="auto"
-             alt="logo" />
-        <div class="text-wrapper">Conveting</div>
-    </div>
-    <div class="menu">
-        <div class="text">
-            <a href="{% url 'index' %}">
-                <div class="div">Home</div>
-            </a>
+    <a href="{% url 'index' %}">
+        <div class="logo">
+            <img class="group"
+                 src="{% static 'img/group.png' %}"
+                 width="auto"
+                 height="auto"
+                 alt="logo" />
+            <div class="text-wrapper">Conveting</div>
         </div>
+    </a>
+    <div class="menu">
         <div class="div-wrapper">
             <a href="{% url 'prediction_create' %}">
                 <div class="text-wrapper-2">AI 질환 예측</div>
             </a>
         </div>
+        <div class="div-wrapper">
+            <a href="{% url 'post_list' %}">
+                <div class="text-wrapper-2">게시판</div>
+            </a>
+        </div>
         {% if user.is_authenticated %}
+            <div class="div-wrapper">
+                <a href="{% url 'mypage' %}">
+                    <div class="text-wrapper-2">마이페이지</div>
+                </a>
+            </div>
             <div class="div-wrapper">
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}

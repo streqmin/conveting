@@ -1,72 +1,75 @@
-<h2>게시판</h2>
-<!-- 🔍 검색 & 필터 폼 -->
-<form method="get">
-    <input type="text" name="q" placeholder="검색어 입력" value="{{ search_query }}" />
-    <select name="user">
-        <option value="">전체 사용자</option>
-        {% for user_id, username in users %}
-            <option value="{{ user_id }}"
-                    {% if user_id|stringformat:"s" == selected_user %}selected{% endif %}>{{ username }}</option>
-        {% endfor %}
-    </select>
-    <select name="breed">
-        <option value="">전체 견종</option>
-        {% for breed in breeds %}
-            <option value="{{ breed }}"
-                    {% if breed == selected_breed %}selected{% endif %}>{{ breed }}</option>
-        {% endfor %}
-    </select>
-    <select name="disease">
-        <option value="">전체 질환</option>
-        {% for disease_id, disease_name in diseases %}
-            <option value="{{ disease_id }}"
-                    {% if disease_id|stringformat:"s" == selected_disease %}selected{% endif %}>{{ disease_name }}</option>
-        {% endfor %}
-    </select>
-    <select name="body_part">
-        <option value="">전체 부위</option>
-        {% for part in body_parts %}
-            <option value="{{ part }}"
-                    {% if part == selected_body_part %}selected{% endif %}>{{ part|title }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit">검색</button>
-</form>
-<hr>
-<!-- 📋 게시글 목록 -->
-{% for post in posts %}
-    <div style="border: 1px solid #ccc; padding: 1em; margin-bottom: 1em;">
-        <h3>{{ post.title }}</h3>
-        <p>
-            <strong>작성자:</strong> {{ post.user.username }}
-        </p>
-        <p>
-            <strong>견종:</strong> {{ post.breed }}
-        </p>
-        <p>
-            <strong>질환:</strong> {{ post.disease.name }}
-        </p>
-        <p>
-            <strong>부위:</strong> {{ post.get_body_part_display }}
-        </p>
-        <p>
-            <strong>작성일:</strong> {{ post.created_at|date:"Y-m-d H:i" }}
-        </p>
-        {% if post.image %}<img src="{{ post.image.url }}" style="max-width: 300px;" alt="게시글 이미지" />{% endif %}
-        <p>
-            <a href="{% url 'post_detail' post.id %}">자세히 보기</a>
-        </p>
+{% extends "base.html" %}
+{% block content %}
+    <h2>게시판</h2>
+    <!-- 🔍 검색 & 필터 폼 -->
+    <form method="get">
+        <input type="text" name="q" placeholder="검색어 입력" value="{{ search_query }}" />
+        <select name="user">
+            <option value="">전체 사용자</option>
+            {% for user_id, username in users %}
+                <option value="{{ user_id }}"
+                        {% if user_id|stringformat:"s" == selected_user %}selected{% endif %}>{{ username }}</option>
+            {% endfor %}
+        </select>
+        <select name="breed">
+            <option value="">전체 견종</option>
+            {% for breed in breeds %}
+                <option value="{{ breed }}"
+                        {% if breed == selected_breed %}selected{% endif %}>{{ breed }}</option>
+            {% endfor %}
+        </select>
+        <select name="disease">
+            <option value="">전체 질환</option>
+            {% for disease_id, disease_name in diseases %}
+                <option value="{{ disease_id }}"
+                        {% if disease_id|stringformat:"s" == selected_disease %}selected{% endif %}>{{ disease_name }}</option>
+            {% endfor %}
+        </select>
+        <select name="body_part">
+            <option value="">전체 부위</option>
+            {% for part in body_parts %}
+                <option value="{{ part }}"
+                        {% if part == selected_body_part %}selected{% endif %}>{{ part|title }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">검색</button>
+    </form>
+    <hr>
+    <!-- 📋 게시글 목록 -->
+    {% for post in posts %}
+        <div style="border: 1px solid #ccc; padding: 1em; margin-bottom: 1em;">
+            <h3>{{ post.title }}</h3>
+            <p>
+                <strong>작성자:</strong> {{ post.user.username }}
+            </p>
+            <p>
+                <strong>견종:</strong> {{ post.breed }}
+            </p>
+            <p>
+                <strong>질환:</strong> {{ post.disease.name }}
+            </p>
+            <p>
+                <strong>부위:</strong> {{ post.get_body_part_display }}
+            </p>
+            <p>
+                <strong>작성일:</strong> {{ post.created_at|date:"Y-m-d H:i" }}
+            </p>
+            {% if post.image %}<img src="{{ post.image.url }}" style="max-width: 300px;" alt="게시글 이미지" />{% endif %}
+            <p>
+                <a href="{% url 'post_detail' post.id %}">자세히 보기</a>
+            </p>
+        </div>
+    {% empty %}
+        <p>게시글이 없습니다.</p>
+    {% endfor %}
+    <!-- 📄 페이지네이션 -->
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
+        {% endif %}
+        <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
+        {% endif %}
     </div>
-{% empty %}
-    <p>게시글이 없습니다.</p>
-{% endfor %}
-<!-- 📄 페이지네이션 -->
-<div class="pagination">
-    {% if page_obj.has_previous %}
-        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
-    {% endif %}
-    <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-    {% if page_obj.has_next %}
-        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
-    {% endif %}
-</div>
+{% endblock content %}

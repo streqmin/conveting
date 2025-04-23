@@ -1,39 +1,42 @@
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div>
-        {{ form.dog.label_tag }}
-        <br />
-        {{ form.dog }}
-    </div>
-    <div>
-        {{ form.breed.label_tag }}
-        <br />
-        {{ form.breed }}
-    </div>
-    <div>
-        {{ form.disease.label_tag }}
-        <br />
-        {{ form.disease }}
-    </div>
-    <div>
-        {{ form.body_part.label_tag }}
-        <br />
-        {{ form.body_part }}
-    </div>
-    <div>
-        {{ form.title.label_tag }}
-        <br />
-        {{ form.title }}
-    </div>
-    <div>
-        {{ form.image.label_tag }}
-        <br />
-        {{ form.image }}
-    </div>
-    <div>
-        {{ form.content.label_tag }}
-        <br />
-        {{ form.content }}
-    </div>
-    <button type="submit">작성하기</button>
-</form>
+{% extends "base.html" %}
+{% block content %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            {{ form.dog.label_tag }}
+            <br />
+            {{ form.dog }}
+        </div>
+        <div>
+            {{ form.breed.label_tag }}
+            <br />
+            {{ form.breed }}
+        </div>
+        <div>
+            {{ form.disease.label_tag }}
+            <br />
+            {{ form.disease }}
+        </div>
+        <div>
+            {{ form.body_part.label_tag }}
+            <br />
+            {{ form.body_part }}
+        </div>
+        <div>
+            {{ form.title.label_tag }}
+            <br />
+            {{ form.title }}
+        </div>
+        <div>
+            {{ form.image.label_tag }}
+            <br />
+            {{ form.image }}
+        </div>
+        <div>
+            {{ form.content.label_tag }}
+            <br />
+            {{ form.content }}
+        </div>
+        <button type="submit">작성하기</button>
+    </form>
+{% endblock content %}
