@@ -1,16 +1,195 @@
 {% extends "base.html" %}
 {% load  socialaccount %}
 {% block content %}
-    <h2>Login</h2>
-    <!-- 일반 로그인 폼 -->
-    <form method="post" action="{% url 'account_login' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">로그인</button>
-    </form>
-    <hr>
-    <!-- 소셜 로그인 버튼 -->
-    <h3>소셜 계정으로 로그인</h3>
-    <a href="{% provider_login_url 'google' %}">Google로 로그인</a>
-    <a href="{% provider_login_url 'kakao' %}">Kakao로 로그인</a>
+    <div style="width: 1440px;
+                height: 900px;
+                position: relative;
+                background: #F87537">
+        <div style="width: 731px;
+                    height: 900px;
+                    left: 0px;
+                    top: 0px;
+                    position: absolute;
+                    background: #FBA81F"></div>
+        <div style="width: 740px;
+                    height: 0px;
+                    left: 165px;
+                    top: 450px;
+                    position: absolute;
+                    outline: 1px black solid;
+                    outline-offset: -0.50px"></div>
+        <div style="width: 539px;
+                    height: 741px;
+                    left: 450px;
+                    top: 79px;
+                    position: absolute;
+                    background: white;
+                    box-shadow: 0px 4px 35px rgba(0, 0, 0, 0.08);
+                    border-radius: 40px"></div>
+        <div style="left: 494px;
+                    top: 134px;
+                    position: absolute;
+                    color: black;
+                    font-size: 20px;
+                    font-family: Poppins;
+                    font-weight: 400;
+                    word-wrap: break-word">Welcome to Lorem</div>
+        <div style="width: 124px; left: 829px; top: 131px; position: absolute">
+            <span style="color: #8D8D8D;
+                         font-size: 16px;
+                         font-family: Poppins;
+                         font-weight: 400;
+                         word-wrap: break-word">No Account ?
+                <br />
+            </span><span style="color: #B87514;
+             font-size: 16px;
+             font-family: Poppins;
+             font-weight: 400;
+             word-wrap: break-word">Sign up</span>
+        </div>
+        <form method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            <!-- Username/email -->
+            <div style="width: 451px;
+                        height: 92px;
+                        left: 494px;
+                        top: 281px;
+                        position: absolute">
+                <div style="left: 0px;
+                            top: -2px;
+                            position: absolute;
+                            color: black;
+                            font-size: 16px;
+                            font-family: Poppins;
+                            font-weight: 400">Enter your username or email address</div>
+                <input name="username"
+                       type="text"
+                       required
+                       style="width: 451px;
+                              height: 57px;
+                              position: absolute;
+                              top: 35px;
+                              left: 0;
+                              background: white;
+                              border-radius: 9px;
+                              border: 1px #4285F4 solid;
+                              padding-left: 25px;
+                              font-size: 14px;
+                              font-family: Poppins;
+                              font-weight: 300"
+                       placeholder="Username or email address" />
+            </div>
+            <!-- Password -->
+            <div style="width: 451px;
+                        height: 92px;
+                        left: 494px;
+                        top: 411px;
+                        position: absolute">
+                <div style="left: 0px;
+                            top: -2px;
+                            position: absolute;
+                            color: black;
+                            font-size: 16px;
+                            font-family: Poppins;
+                            font-weight: 400">Enter your Password</div>
+                <input name="password"
+                       type="password"
+                       required
+                       style="width: 451px;
+                              height: 57px;
+                              position: absolute;
+                              top: 35px;
+                              left: 0;
+                              background: white;
+                              border-radius: 9px;
+                              border: 1px #ADADAD solid;
+                              padding-left: 25px;
+                              font-size: 14px;
+                              font-family: Poppins;
+                              font-weight: 300"
+                       placeholder="Password" />
+            </div>
+            <!-- Submit -->
+            <div style="width: 451px;
+                        height: 54px;
+                        left: 494px;
+                        top: 570px;
+                        position: absolute;
+                        background: #E48700;
+                        box-shadow: 0px 4px 19px rgba(119, 147, 65, 0.30);
+                        border-radius: 10px">
+                <button type="submit"
+                        style="width: 100%;
+                               height: 100%;
+                               background: none;
+                               border: none;
+                               color: white;
+                               font-size: 16px;
+                               font-family: Poppins;
+                               font-weight: 500;
+                               cursor: pointer">Sign in</button>
+            </div>
+        </form>
+        <div style="left: 494px;
+                    top: 164px;
+                    position: absolute;
+                    color: black;
+                    font-size: 55px;
+                    font-family: Poppins;
+                    font-weight: 500;
+                    word-wrap: break-word">Sign in</div>
+        <div style="width: 539px;
+                    padding-left: 30px;
+                    padding-right: 30px;
+                    left: 450px;
+                    top: 713px;
+                    position: absolute;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 30px;
+                    display: inline-flex">
+            <a href="{% provider_login_url 'kakao' %}">
+                <!-- 카카오 로그인 -->
+                <img style="width: 163px;
+                            height: 40px"
+                     src="/static/social/kakao_login_large_narrow.png" />
+            </a>
+            <a href="{% provider_login_url 'google' %}">
+                <!-- 구글 로그인 -->
+                <img src="/static/social/web_light_sq_SI.svg" alt="google login">
+            </a>
+        </div>
+        <div style="left: 709px;
+                    top: 657px;
+                    position: absolute;
+                    color: #ABABAB;
+                    font-size: 16px;
+                    font-family: Poppins;
+                    font-weight: 400;
+                    word-wrap: break-word">OR</div>
+        <div style="width: 269px;
+                    height: 256px;
+                    left: 150px;
+                    top: 193px;
+                    position: absolute">
+            <img style="width: 269px;
+                        height: 256px;
+                        left: 0px;
+                        top: 0px;
+                        position: absolute"
+                 src="/static/img/Saly-3.png" />
+        </div>
+        <div style="width: 450px;
+                    height: 450px;
+                    left: 929px;
+                    top: 144px;
+                    position: absolute">
+            <img style="width: 450px;
+                        height: 450px;
+                        left: 0px;
+                        top: 0px;
+                        position: absolute"
+                 src="/static/img/Saly-2.png" />
+        </div>
+    </div>
 {% endblock content %}
