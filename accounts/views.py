@@ -2,6 +2,7 @@ import jwt
 from django.conf import settings
 from django.views import View
 from django.views.generic import UpdateView
+from django.views.generic.base import RedirectView
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth import get_user_model, authenticate
@@ -87,10 +88,13 @@ class MyPageView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class LogoutView(View):
-    def post(self, request):
-        response = JsonResponse({"message": "로그아웃 성공"})
-        response.delete_cookie("jwt")
+class JWTLogoutView(RedirectView):
+    pattern_name = "index"
+
+    def post(self, request, *args, **kwargs):
+        response = redirect(self.get_redirect_url(*args, **kwargs))
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
         return response
 
 
