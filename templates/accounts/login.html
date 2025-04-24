@@ -11,16 +11,16 @@
         <section class="login-section">
             <div class="login-card">
                 <header class="login-header">
-                    <h1 class="login-title">Sign in</h1>
+                    <h1 class="login-title">로그인</h1>
                     <p class="signup-prompt">
-                        No Account?
-                        <a href="{% url 'account_signup' %}">Sign up</a>
+                        계정이 아직 없으신가요?
+                        <a href="{% url 'account_signup' %}">회원가입</a>
                     </p>
                 </header>
                 <form method="post" action="{% url 'account_login' %}" class="login-form">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="id_username">Enter your username or email address</label>
+                        <label for="id_username">사용자명을 입력하세요</label>
                         <input id="id_username"
                                name="username"
                                type="text"
@@ -28,14 +28,14 @@
                                placeholder="Username or email address">
                     </div>
                     <div class="form-group">
-                        <label for="id_password">Enter your Password</label>
+                        <label for="id_password">비밀번호를 입력하세요</label>
                         <input id="id_password"
                                name="password"
                                type="password"
                                required
                                placeholder="Password">
                     </div>
-                    <button type="submit" class="btn-submit">Sign in</button>
+                    <button type="submit" class="btn-submit">로그인</button>
                 </form>
                 <span>OR</span>
                 <div class="social-login">
