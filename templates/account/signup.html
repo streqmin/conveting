@@ -3,9 +3,6 @@
     <h2>회원가입</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <ul>
-            {% for field in form %}<li>{{ field.label }} : {{ field }}</li>{% endfor %}
-        </ul>
         {{ form.non_field_errors }}
         <div>
             {{ form.username.label_tag }}

@@ -16,3 +16,8 @@ button:focus-visible {
 a {
     text-decoration: none;
 }
+
+.main-wrapper {
+    height: 100%;
+    padding-top: var(--navbar-height);
+}
