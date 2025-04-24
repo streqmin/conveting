@@ -1,28 +1,85 @@
 {% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/prediction/prediction.css' %}">
+{% endblock %}
 {% block content %}
-    <h2>질환 예측 요청</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div>
-            <label for="{{ form.dog.id_for_label }}">{{ form.dog.label }}</label>
-            <br />
-            {{ form.dog }}
-            {% if form.dog.errors %}<div class="error">{{ form.dog.errors }}</div>{% endif %}
-        </div>
-        <div>
-            <label for="{{ form.predicted_part.id_for_label }}">{{ form.predicted_part.label }}</label>
-            <br />
-            {{ form.predicted_part }}
-            {% if form.predicted_part.errors %}<div class="error">{{ form.predicted_part.errors }}</div>{% endif %}
-        </div>
-        <div>
-            <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
-            <br />
-            {{ form.image }}
-            {% if form.image.errors %}<div class="error">{{ form.image.errors }}</div>{% endif %}
-        </div>
-        <div>
-            <button type="submit">예측 요청</button>
+        <div class="prediction-container">
+            <!-- 제목 -->
+            <div class="prediction-title-wrapper">
+                <div class="prediction-title">AI 질환 예측</div>
+            </div>
+            <!-- 이미지 업로드 & 프리뷰 -->
+            <label for="id_image" class="prediction-upload-label">
+                <!-- 업로드 전 플레이스홀더 -->
+                <div id="uploadPlaceholder" class="prediction-upload-placeholder">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 16V4M12 4L8 8M12 4l4 4" stroke="#888" stroke-width="2" stroke-linecap="round" />
+                        <rect x="4" y="16" width="16" height="4" rx="1" fill="#888" />
+                    </svg>
+                    <div>이미지 업로드</div>
+                </div>
+                <!-- 업로드 후 미리보기 -->
+                <img id="imagePreview" class="prediction-image-preview" alt="질환 이미지 미리보기">
+            </label>
+            <input type="file"
+                   id="id_image"
+                   name="{{ form.image.html_name }}"
+                   accept="image/*"
+                   class="prediction-file-input">
+            {% if form.image.errors %}<div class="prediction-error">{{ form.image.errors }}</div>{% endif %}
+            <!-- 선택 필드들 -->
+            <div class="prediction-select-group">
+                <!-- 반려견 선택 -->
+                <div class="prediction-select-wrapper"
+                     data-property-1="{{ form.dog.value }}">
+                    <select id="{{ form.dog.id_for_label }}"
+                            name="{{ form.dog.html_name }}"
+                            class="prediction-select">
+                        {% for val, label in form.dog.field.choices %}
+                            <option value="{{ val }}"
+                                    {% if form.dog.value|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if form.dog.errors %}<div class="prediction-error">{{ form.dog.errors }}</div>{% endif %}
+                <!-- 예측 부위 선택 -->
+                <div class="prediction-select-wrapper"
+                     data-property-1="{{ form.predicted_part.value }}">
+                    <select id="{{ form.predicted_part.id_for_label }}"
+                            name="{{ form.predicted_part.html_name }}"
+                            class="prediction-select capitalize">
+                        {% for val, label in form.predicted_part.field.choices %}
+                            <option value="{{ val }}"
+                                    {% if form.predicted_part.value|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if form.predicted_part.errors %}<div class="prediction-error">{{ form.predicted_part.errors }}</div>{% endif %}
+            </div>
+            <!-- 제출 버튼 -->
+            <button type="submit" class="prediction-button">
+                <div class="prediction-button-text">AI 질환 예측 시작하기</div>
+            </button>
         </div>
     </form>
-{% endblock content %}
+    <script>
+// 페이지 하단에 배치하세요
+const fileInput = document.getElementById('id_image');
+const placeholder = document.getElementById('uploadPlaceholder');
+const preview     = document.getElementById('imagePreview');
+
+fileInput.addEventListener('change', function(){
+  const file = this.files[0];
+  if (!file) return;
+  // 플레이스홀더 숨기고
+  placeholder.style.display = 'none';
+  // 미리보기 src 세팅 & 보이기
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+  preview.onload = () => URL.revokeObjectURL(preview.src);
+});
+    </script>
+{% endblock %}
