@@ -1,0 +1,211 @@
+.post-list-container {
+    padding: 60px 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+.post-header .title {
+    color: black;
+    font-size: 40px;
+    font-family: Poppins;
+    font-weight: 600;
+    line-height: 48px;
+}
+.filter-form {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    height: 40px;
+}
+.filter-selects {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.filter-selects select {
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    background: white;
+    font-family: Poppins;
+    font-size: 14px;
+}
+.filter-tags {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.tag {
+    display: flex;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: Poppins;
+    font-weight: 500;
+    color: white;
+}
+.breed-tag {
+    background: #ffffff;
+    color: black;
+    border: 1px solid #dddddd;
+}
+.disease-tag {
+    background: #fba81f;
+}
+.part-tag {
+    background: #f87537;
+}
+.search-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 300px;
+    height: 40px;
+    padding: 10px;
+    border-radius: 10px;
+    outline: 1px #001e47 solid;
+}
+.search-input img {
+    width: 24px;
+    height: 24px;
+}
+.search-input input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+    font-family: Poppins;
+    font-weight: 300;
+    color: #777777;
+}
+.posts-wrapper {
+    width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.post-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border-bottom: 1px #dddddd solid;
+}
+
+.post-title-tag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-family: Poppins;
+    font-weight: 400;
+    color: black;
+    text-transform: capitalize;
+    text-decoration: none;
+}
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.post-meta img {
+    width: 24px;
+    height: 24px;
+}
+.post-meta .comment-count {
+    font-size: 16px;
+    font-family: Poppins;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.6);
+}
+.post-meta span {
+    font-size: 16px;
+    font-family: Poppins;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.6);
+}
+.post-meta .date {
+    margin-left: 5px;
+}
+.no-posts {
+    width: 900px;
+    padding: 15px;
+    text-align: center;
+    color: #777777;
+    font-family: Poppins;
+}
+.pagination-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 40px;
+}
+.pagination-wrapper .arrow {
+    width: 40px;
+    height: 40px;
+    background: black;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pagination-wrapper .arrow.prev {
+    transform: rotate(180deg);
+}
+.pagination-wrapper .arrow::before {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 12px;
+    outline: 2px white solid;
+    outline-offset: -1px;
+    position: relative;
+    left: 9px;
+    top: 6px;
+}
+.page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.page-link,
+.current {
+    font-size: 20px;
+    font-family: Poppins;
+    font-weight: 600;
+}
+.page-link {
+    color: rgba(0, 0, 0, 0.4);
+    text-decoration: none;
+}
+.current {
+    color: black;
+}
+
+.pagination-numbers {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-number,
+.current-page {
+    font-size: 20px;
+    font-family: Poppins;
+    font-weight: 600;
+}
+
+.page-number {
+    color: rgba(0, 0, 0, 0.4);
+    text-decoration: none;
+}
+
+.current-page {
+    color: black;
+}
