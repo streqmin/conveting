@@ -221,3 +221,37 @@
 .add-post-btn:hover {
     background-color: #e0662e;
 }
+
+/* — 카테고리 태그 공통 스타일 — */
+.tag-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tag-container span {
+    padding: 7px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: Poppins;
+    font-weight: 500;
+    color: white;
+}
+
+/* — 개별 태그 색상 — */
+.dog-tag {
+    background: #3f51b5; /* 취향에 맞게 조정 */
+}
+
+.breed-tag {
+    background: #607d8b; /* 취향에 맞게 조정 */
+}
+
+.disease-tag {
+    background: #fba81f;
+}
+
+.body-part-tag {
+    background: #f87537;
+}

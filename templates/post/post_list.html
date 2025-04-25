@@ -53,8 +53,13 @@
                     <div class="post-item">
                         <div class="post-title-tag">
                             {{ post.title }}
-                            <div class="tag disease-tag">{{ post.disease.name }}</div>
-                            <div class="tag part-tag">{{ post.get_body_part_display }}</div>
+                            {% if post.dog or post.breed or post.disease or post.body_part %}
+                                <div class="tag-container">
+                                    {% if post.breed %}<span class="tag breed-tag">{{ post.breed }}</span>{% endif %}
+                                    {% if post.disease %}<span class="tag disease-tag">{{ post.disease.name }}</span>{% endif %}
+                                    {% if post.body_part %}<span class="tag body-part-tag">{{ post.get_body_part_display }}</span>{% endif %}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="post-meta">
                             {% if post.comments.count %}
