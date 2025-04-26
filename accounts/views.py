@@ -80,6 +80,7 @@ class MyPageView(LoginRequiredMixin, UpdateView):
                     "dog_name": pred.dog.name,
                     "image": pred.image.url if pred.image else None,
                     "results": [],
+                    "date": pred.created_at,
                 }
             if len(grouped[key]["results"]) < 2:  # 최대 2개만 보여줌
                 grouped[key]["results"].append(pred)
