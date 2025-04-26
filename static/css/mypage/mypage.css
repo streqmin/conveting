@@ -120,7 +120,7 @@
 
 /* My Dogs Section */
 .my-dogs-section {
-    align-self: stretch;
+    /* align-self: stretch; */
     padding: 30px 72px;
     display: inline-flex;
     flex-direction: column;
@@ -169,11 +169,11 @@
 
 /* Dog List */
 .dog-list {
-    display: inline-flex;
-    justify-content: flex-start;
-    align-items: flex-start;
+    display: flex;
+    align-items: center;
     gap: 24px;
     width: 100%;
+    max-width: 1200px;
 }
 .dog-card {
     display: inline-flex;
