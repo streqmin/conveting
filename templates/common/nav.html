@@ -15,20 +15,20 @@
         <div class="div-wrapper">
             <a href="{% url 'prediction_create' %}">
                 <div class="text-wrapper-2
-                            {% if '/prediction/' in request.path %}active{% endif %}">AI 질환 예측</div>
+                            {% if 'prediction' in request.path %}active{% endif %}">AI 질환 예측</div>
             </a>
         </div>
         <div class="div-wrapper">
             <a href="{% url 'post_list' %}">
                 <div class="text-wrapper-2
-                            {% if '/post/' in request.path %}active{% endif %}">게시판</div>
+                            {% if 'post' in request.path %}active{% endif %}">게시판</div>
             </a>
         </div>
         {% if user.is_authenticated %}
             <div class="div-wrapper">
                 <a href="{% url 'mypage' %}">
                     <div class="text-wrapper-2
-                                {% if '/mypage/' in request.path %}active{% endif %}">마이페이지</div>
+                                {% if 'mypage' in request.path %}active{% endif %}">마이페이지</div>
                 </a>
             </div>
             <div class="div-wrapper">
@@ -46,13 +46,13 @@
             <div class="div-wrapper">
                 <a href="{% url 'login' %}">
                     <div class="text-wrapper-2
-                                {% if '/login/' in request.path %}active{% endif %}">로그인</div>
+                                {% if 'login' in request.path %}active{% endif %}">로그인</div>
                 </a>
             </div>
             <div class="div-wrapper">
                 <a href="{% url 'account_signup' %}">
                     <div class="text-wrapper-2
-                                {% if '/signup/' in request.path %}active{% endif %}">회원가입</div>
+                                {% if 'signup' in request.path %}active{% endif %}">회원가입</div>
                 </a>
             </div>
         {% endif %}
