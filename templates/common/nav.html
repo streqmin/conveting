@@ -28,7 +28,7 @@
             <div class="div-wrapper">
                 <a href="{% url 'mypage' %}">
                     <div class="text-wrapper-2
-                                {% if 'mypage' in request.path %}active{% endif %}">마이페이지</div>
+                                {% if 'mypage' in request.path  or 'dogs' in request.path %}active{% endif %}">마이페이지</div>
                 </a>
             </div>
             <div class="div-wrapper">

@@ -3,6 +3,7 @@ from django.http import HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, CreateView, UpdateView
 
+from prediction.models import Prediction
 from .forms import DogForm
 from .models import Dog
 
@@ -14,13 +15,36 @@ class DogPublicDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(
-            {
-                "form": None,
-                "is_create_mode": False,
-                "is_edit_mode": False,
-            }
+        dog = self.object
+
+        # 이 dog로 수행된 모든 PredictionResult 를 request_id별로 그룹핑
+        qs = (
+            Prediction.objects
+            .filter(dog=dog)
+            .select_related("predicted_disease")  # foreign key 최적화
+            .order_by("-created_at")
         )
+
+        groups = {}
+        for r in qs:
+            grp = groups.setdefault(r.request_id, {
+                "request_id": r.request_id,
+                "image":   r.image.url,
+                "results": [],
+                "dog_name": dog.name,
+                "date":   r.created_at,
+            })
+            grp["results"].append(r)
+
+        # dict→list 로 변환. 최신 순 유지
+        predictions = list(groups.values())
+
+        context.update({
+            "form": None,
+            "is_create_mode": False,
+            "is_edit_mode": False,
+            "predictions": predictions,
+        })
         return context
 
 

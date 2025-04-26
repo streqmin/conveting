@@ -79,11 +79,6 @@
     line-height: 25.6px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
-.profile-info-wrapper label + .profile-username-input,
-.profile-info-wrapper label + .profile-email-input,
-.profile-save-btn {
-    margin-top: 20px;
-}
 
 /* Save Button */
 .profile-save-btn {
