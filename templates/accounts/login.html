@@ -1,28 +1,60 @@
-{% load  socialaccount %}
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Login</title>
-    </head>
-    <body>
-        <h1>🔥 이 템플릿은 account/login.html 입니다</h1>
-        <h2>Login</h2>
-        <!-- 일반 로그인 폼 -->
-        <form method="post" action="{% url 'account_login' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">로그인</button>
-        </form>
-        <hr>
-        <!-- 소셜 로그인 버튼 -->
-        <h3>소셜 계정으로 로그인</h3>
-        <a href="{% provider_login_url 'google' %}">Google로 로그인</a>
-        <a href="{% provider_login_url 'kakao' %}">Kakao로 로그인</a>
-        <hr>
-        <h3>📋 렌더링된 소셜 프로바이더 목록</h3>
-        <ul>
-            {% get_providers as social_providers %}
-            {% for provider in social_providers %}<li>{{ provider.id }}</li>{% endfor %}
-        </ul>
-    </body>
-</html>
+{% extends "base.html" %}
+{% load static socialaccount %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/login/login.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <main class="login-page">
+        <!-- 배경 레이어 -->
+        <div class="bg-primary"></div>
+        <!-- 폼 영역 -->
+        <section class="login-section">
+            <div class="login-card">
+                <header class="login-header">
+                    <h1 class="login-title">로그인</h1>
+                    <p class="signup-prompt">
+                        계정이 아직 없으신가요?
+                        <a href="{% url 'account_signup' %}">회원가입</a>
+                    </p>
+                </header>
+                <form method="post" action="{% url 'account_login' %}" class="login-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_username">사용자명을 입력하세요</label>
+                        <input id="id_username"
+                               name="username"
+                               type="text"
+                               required
+                               placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password">비밀번호를 입력하세요</label>
+                        <input id="id_password"
+                               name="password"
+                               type="password"
+                               required
+                               placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn-submit">로그인</button>
+                </form>
+                <span>OR</span>
+                <div class="social-login">
+                    <a href="{% provider_login_url 'kakao' %}">
+                        <img src="{% static 'social/kakao_login_large_narrow.png' %}"
+                             alt="카카오 로그인">
+                    </a>
+                    <a href="{% provider_login_url 'google' %}">
+                        <img src="{% static 'social/web_light_sq_SI.svg' %}" alt="구글 로그인">
+                    </a>
+                </div>
+            </div>
+            <!-- 일러스트레이션 -->
+            <aside class="illustration illustration-left">
+                <img src="{% static 'img/Saly-3.png' %}" alt="illustration">
+            </aside>
+            <aside class="illustration illustration-right">
+                <img src="{% static 'img/Saly-2.png' %}" alt="illustration">
+            </aside>
+        </section>
+    </main>
+{% endblock content %}

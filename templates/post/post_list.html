@@ -1,72 +1,108 @@
-<h2>게시판</h2>
-<!-- 🔍 검색 & 필터 폼 -->
-<form method="get">
-    <input type="text" name="q" placeholder="검색어 입력" value="{{ search_query }}" />
-    <select name="user">
-        <option value="">전체 사용자</option>
-        {% for user_id, username in users %}
-            <option value="{{ user_id }}"
-                    {% if user_id|stringformat:"s" == selected_user %}selected{% endif %}>{{ username }}</option>
-        {% endfor %}
-    </select>
-    <select name="breed">
-        <option value="">전체 견종</option>
-        {% for breed in breeds %}
-            <option value="{{ breed }}"
-                    {% if breed == selected_breed %}selected{% endif %}>{{ breed }}</option>
-        {% endfor %}
-    </select>
-    <select name="disease">
-        <option value="">전체 질환</option>
-        {% for disease_id, disease_name in diseases %}
-            <option value="{{ disease_id }}"
-                    {% if disease_id|stringformat:"s" == selected_disease %}selected{% endif %}>{{ disease_name }}</option>
-        {% endfor %}
-    </select>
-    <select name="body_part">
-        <option value="">전체 부위</option>
-        {% for part in body_parts %}
-            <option value="{{ part }}"
-                    {% if part == selected_body_part %}selected{% endif %}>{{ part|title }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit">검색</button>
-</form>
-<hr>
-<!-- 📋 게시글 목록 -->
-{% for post in posts %}
-    <div style="border: 1px solid #ccc; padding: 1em; margin-bottom: 1em;">
-        <h3>{{ post.title }}</h3>
-        <p>
-            <strong>작성자:</strong> {{ post.user.username }}
-        </p>
-        <p>
-            <strong>견종:</strong> {{ post.breed }}
-        </p>
-        <p>
-            <strong>질환:</strong> {{ post.disease.name }}
-        </p>
-        <p>
-            <strong>부위:</strong> {{ post.get_body_part_display }}
-        </p>
-        <p>
-            <strong>작성일:</strong> {{ post.created_at|date:"Y-m-d H:i" }}
-        </p>
-        {% if post.image %}<img src="{{ post.image.url }}" style="max-width: 300px;" alt="게시글 이미지" />{% endif %}
-        <p>
-            <a href="{% url 'post_detail' post.id %}">자세히 보기</a>
-        </p>
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/post/post_list.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <div class="post-list-container">
+        <!-- 헤더: 제목 -->
+        <div class="post-header">
+            <div class="title">Dogqument</div>
+        </div>
+        <!-- 필터 & 검색 -->
+        <form method="get" class="filter-form">
+            <div class="filter-selects">
+                <select name="breed">
+                    <option value="">전체 견종</option>
+                    {% for breed in breeds %}
+                        <option value="{{ breed }}"
+                                {% if breed == selected_breed %}selected{% endif %}>{{ breed }}</option>
+                    {% endfor %}
+                </select>
+                <select name="disease">
+                    <option value="">전체 질환</option>
+                    {% for disease_id, disease_name in diseases %}
+                        <option value="{{ disease_id }}"
+                                {% if disease_id|stringformat:"s" == selected_disease %}selected{% endif %}>{{ disease_name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="body_part">
+                    <option value="">전체 부위</option>
+                    {% for part in body_parts %}
+                        <option value="{{ part }}"
+                                {% if part == selected_body_part %}selected{% endif %}>{{ part|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-tags">
+                {% if selected_breed %}<div class="tag breed-tag">{{ selected_breed }}</div>{% endif %}
+                {% if selected_body_part %}<div class="tag part-tag">{{ selected_body_part|title }}</div>{% endif %}
+            </div>
+            <div class="search-input">
+                <img src="{% static 'img/search-01.svg' %}" alt="검색">
+                <input type="text"
+                       name="q"
+                       placeholder="검색할 키워드를 입력하세요"
+                       value="{{ search_query }}" />
+            </div>
+        </form>
+        <!-- 게시글 목록 -->
+        <div class="posts-wrapper">
+            {% for post in posts %}
+                <a href="{% url 'post_detail' post.id %}">
+                    <div class="post-item">
+                        <div class="post-title-tag">
+                            {{ post.title }}
+                            {% if post.dog or post.breed or post.disease or post.body_part %}
+                                <div class="tag-container">
+                                    {% if post.breed %}<span class="tag breed-tag">{{ post.breed }}</span>{% endif %}
+                                    {% if post.disease %}<span class="tag disease-tag">{{ post.disease.name }}</span>{% endif %}
+                                    {% if post.body_part %}<span class="tag body-part-tag">{{ post.get_body_part_display }}</span>{% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="post-meta">
+                            {% if post.comments.count %}
+                                <img src="{% static 'img/message-text-02.svg' %}" alt="댓글">
+                                <span class="comment-count">{{ post.comments.count }}</span>
+                            {% endif %}
+                            {% if post.image %}
+                                <img src="{% static 'img/image.svg' %}" alt="이미지">
+                            {% endif %}
+                            <span>{{ post.user.username }}</span>
+                            <span class="date">{{ post.created_at|date:"Y.m.d" }}</span>
+                        </div>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="no-posts">게시글이 없습니다.</div>
+            {% endfor %}
+        </div>
+        <!-- 페이지네이션 -->
+        <div class="pagination-wrapper">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                   class="pagination-btn">
+                    <img src="{% static 'img/prev.svg' %}" alt="이전 페이지" />
+                </a>
+            {% endif %}
+            <div class="pagination-numbers">
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num == page_obj.number %}
+                        <span class="current-page">{{ num }}</span>
+                    {% else %}
+                        <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                           class="page-number">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                   class="pagination-btn">
+                    <img src="{% static 'img/next.svg' %}" alt="다음 페이지" />
+                </a>
+            {% endif %}
+        </div>
+        <a href="{% url 'post_create' %}" class="btn add-post-btn">새 게시글 작성</a>
     </div>
-{% empty %}
-    <p>게시글이 없습니다.</p>
-{% endfor %}
-<!-- 📄 페이지네이션 -->
-<div class="pagination">
-    {% if page_obj.has_previous %}
-        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">이전</a>
-    {% endif %}
-    <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-    {% if page_obj.has_next %}
-        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">다음</a>
-    {% endif %}
-</div>
+{% endblock content %}

@@ -1,139 +1,261 @@
-<h2>{{ post.title }}</h2>
-<p>
-    <strong>작성자:</strong> {{ post.user.username }}
-</p>
-<p>
-    <strong>반려견:</strong> {{ post.dog.name }}
-</p>
-<p>
-    <strong>견종:</strong> {{ post.breed }}
-</p>
-<p>
-    <strong>질환:</strong> {{ post.disease.name }}
-</p>
-<p>
-    <strong>질환 부위:</strong> {{ post.get_body_part_display }}
-</p>
-<p>
-    <strong>작성일:</strong> {{ post.created_at|date:"Y-m-d H:i" }}
-</p>
-{% if post.image %}
-    <div>
-        <img src="{{ post.image.url }}" style="max-width: 400px;" alt="게시글 이미지">
-    </div>
-{% endif %}
-<hr>
-<p>{{ post.content|linebreaks }}</p>
-<form id="like-form"
-      method="post"
-      action="{% url 'post_like_toggle' post.id %}">
-    {% csrf_token %}
-    <button type="submit">
-        {% if has_liked %}
-            ♥ 좋아요 취소
-        {% else %}
-            ♡ 좋아요
-        {% endif %}
-    </button>
-</form>
-<p id="like-count">{{ post.likes.count }}명이 좋아합니다.</p>
-<p>
-    <a href="{% url 'post_list' %}">← 게시글 목록으로 돌아가기</a>
-</p>
-{# templates/post/post_detail.html #}
-<h2>댓글</h2>
-{# 댓글 작성 폼 (루트 댓글용) #}
-<form method="post" action="{% url 'comment_create' post.id %}">
-    {% csrf_token %}
-    {{ comment_form.as_p }}
-    <button type="submit">댓글 작성</button>
-</form>
-<hr>
-{# 댓글 목록 #}
-{% for comment in post.comments.all %}
-    {% if not comment.parent_comment %}
-        <div style="margin-bottom: 1em;">
-            <strong>{{ comment.user.username }}</strong> | {{ comment.created_at|date:"Y-m-d H:i" }}
-            <br>
-            {{ comment.content|linebreaks }}
-            {# 댓글 좋아요 버튼 #}
-            {% if comment.id in liked_comment_ids %}
-                <button class="like-btn" data-comment-id="{{ comment.id }}" data-liked="true">
-                    ❤️ <span class="like-count">{{ comment.likes.count }}</span>
-                </button>
-            {% else %}
-                <button class="like-btn"
-                        data-comment-id="{{ comment.id }}"
-                        data-liked="false">
-                    🤍 <span class="like-count">{{ comment.likes.count }}</span>
-                </button>
-            {% endif %}
-            {# 대댓글 작성 폼 토글 #}
-            <details>
-                <summary>답글 달기</summary>
-                <form method="post" action="{% url 'comment_create' post.id %}">
-                    {% csrf_token %}
-                    <textarea name="content" rows="2" placeholder="답글을 입력하세요..."></textarea>
-                    <input type="hidden" name="parent_comment" value="{{ comment.id }}">
-                    <button type="submit">답글 작성</button>
-                </form>
-            </details>
-            {# 대댓글 목록 #}
-            {% for reply in comment.replies.all %}
-                <div style="margin-left: 2em;
-                            border-left: 1px solid #ccc;
-                            padding-left: 1em">
-                    <strong>{{ reply.user.username }}</strong> | {{ reply.created_at|date:"Y-m-d H:i" }}
-                    <br>
-                    {{ reply.content|linebreaks }}
-                    {# 대댓글 좋아요 버튼 #}
-                    {% if reply.id in liked_comment_ids %}
-                        <button class="like-btn" data-comment-id="{{ reply.id }}" data-liked="true">
-                            ❤️ <span class="like-count">{{ reply.likes.count }}</span>
-                        </button>
-                    {% else %}
-                        <button class="like-btn" data-comment-id="{{ reply.id }}" data-liked="false">
-                            🤍 <span class="like-count">{{ reply.likes.count }}</span>
-                        </button>
-                    {% endif %}
-                    <details>
-                        <summary>답글 달기</summary>
-                        <form method="post" action="{% url 'comment_create' post.id %}">
-                            {% csrf_token %}
-                            <textarea name="content" rows="2" placeholder="답글을 입력하세요..."></textarea>
-                            <input type="hidden" name="parent_comment" value="{{ comment.id }}">
-                            <button type="submit">답글 작성</button>
-                        </form>
-                    </details>
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/post/post_detail.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <div class="post-detail-container">
+        <!-- 헤더: 작성자  태그 -->
+        <div class="post-detail-header">
+            <div class="post-user-info">
+                <img class="post-user-avatar"
+                     src="{{ post.user.profile_image.url|default:'https://placehold.co/40x40' }}"
+                     alt="avatar">
+                <span class="post-user-name">{{ post.user.username }}</span>
+                {# 반려견이 등록되어 있으면 이름 표시 & 링크 #}
+                {% if post.dog %}
+                    <a href="{% url 'dog_detail' post.dog.pk %}" class="post-dog-name">{{ post.dog.name }}</a>
+                {% endif %}
+            </div>
+            {% if post.breed or post.disease or post.body_part %}
+                <div class="post-categories">
+                    {% if post.breed %}<span class="tag tag-breed">{{ post.breed }}</span>{% endif %}
+                    {% if post.disease %}<span class="tag tag-disease">{{ post.disease.name }}</span>{% endif %}
+                    {% if post.body_part %}<span class="tag tag-body-part">{{ post.get_body_part_display }}</span>{% endif %}
                 </div>
+            {% endif %}
+        </div>
+        <!-- 본문 텍스트 -->
+        <div class="post-content">{{ post.content|linebreaks }}</div>
+        <!-- 이미지 (있을 때만) -->
+        {% if post.image %}
+            <div class="post-image-wrapper">
+                <img class="post-image" src="{{ post.image.url }}" alt="post image">
+            </div>
+        {% endif %}
+        <!-- 좋아요 버튼 & 카운트 -->
+        <div class="post-like-area">
+            <button type="button"
+                    class="post-like-btn"
+                    data-url="{% url 'post_like_toggle' post.id %}"
+                    data-liked="{% if has_liked %}
+                                    true
+                                {% else %}
+                                    false
+                                {% endif %}"
+                    data-like-url="{% static 'img/Like.svg' %}"
+                    data-unlike-url="{% static 'img/Unlike.svg' %}">
+                <img class="like-icon"
+                     src="{% if has_liked %} {% static 'img/Like.svg' %} {% else %} {% static 'img/Unlike.svg' %} {% endif %}"
+                     alt="like" />
+                <span class="post-like-count">{{ post.likes.count }} 명이 좋아합니다.</span>
+            </button>
+            <p>
+                <a href="{% url 'post_list' %}">← 게시글 목록으로 돌아가기</a>
+            </p>
+        </div>
+        <h2 class="comments-list-title">댓글</h2>
+        <!-- 댓글 등록 폼 -->
+        <div class="comment-form-container">
+            <div class="comment-form-header">
+                <img class="comment-form-avatar"
+                     src="{{ request.user.profile_image.url|default:'https://placehold.co/40x40' }}"
+                     alt="avatar" />
+                <span class="comment-form-username">{{ request.user.username }}</span>
+                <span class="comment-form-timestamp">{% now "Y.m.d" %}</span>
+            </div>
+            <form method="post"
+                  action="{% url 'comment_create' post.id %}"
+                  class="comment-form">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <div class="comment-form-actions">
+                    <button type="submit" class="comment-form-submit">완료</button>
+                    <button type="button" class="comment-form-cancel">취소</button>
+                </div>
+            </form>
+        </div>
+        <div class="comments-list-title">댓글 목록</div>
+        <div class="comments-list">
+            {% for comment in post.comments.all %}
+                {% if not comment.parent_comment %}
+                    <div class="comment-item">
+                        <div class="comment-item-header">
+                            <img class="comment-item-avatar"
+                                 src="{{ comment.user.profile_image.url|default:'https://placehold.co/40x40' }}"
+                                 alt="avatar" />
+                            <span class="comment-item-username">{{ comment.user.username }}</span>
+                            <span class="comment-item-timestamp">{{ comment.created_at|date:"Y.m.d" }}</span>
+                        </div>
+                        <div class="comment-body">
+                            <button class="comment-like-btn"
+                                    data-comment-id="{{ comment.id }}"
+                                    data-liked="{% if comment.id in liked_comment_ids %}
+                                                    true
+                                                {% else %}
+                                                    false
+                                                {% endif %}"
+                                    data-like-url="{% static 'img/Like.svg' %}"
+                                    data-unlike-url="{% static 'img/Unlike.svg' %}">
+                                <img class="like-icon"
+                                     src="{% if comment.id in liked_comment_ids %} {% static 'img/Like.svg' %} {% else %} {% static 'img/Unlike.svg' %} {% endif %}"
+                                     alt="like" />
+                            </button>
+                            <span class="comment-like-text">{{ comment.likes.count }}명이 좋아합니다.</span>
+                            <div class="comment-item-content">{{ comment.content|linebreaks }}</div>
+                        </div>
+                        <details class="comment-reply-details">
+                            <summary class="comment-reply-summary">답글 달기</summary>
+                            <form method="post"
+                                  action="{% url 'comment_create' post.id %}"
+                                  class="comment-reply-form">
+                                {% csrf_token %}
+                                <div class="comment-reply-field">
+                                    {{ comment_form.content }}
+                                    {% if comment_form.content.errors %}
+                                        <ul class="errorlist">
+                                            {% for err in comment_form.content.errors %}<li>{{ err }}</li>{% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                                <input type="hidden" name="parent_comment" value="{{ comment.id }}" />
+                                <div class="comment-form-actions">
+                                    <button type="submit" class="comment-form-submit">완료</button>
+                                    <button type="button" class="comment-form-cancel" data-id="{{ comment.id }}">취소</button>
+                                </div>
+                            </form>
+                        </details>
+                        {# 대댓글 렌더링 #}
+                        {% for reply in comment.replies.all %}
+                            <div class="comment-reply-item">
+                                <div class="comment-item-header">
+                                    <img class="comment-item-avatar"
+                                         src="{{ reply.user.profile_image.url|default:'https://placehold.co/40x40' }}"
+                                         alt="avatar" />
+                                    <span class="comment-item-username">{{ reply.user.username }}</span>
+                                    <span class="comment-item-timestamp">{{ reply.created_at|date:"Y.m.d" }}</span>
+                                </div>
+                                <div class="comment-body">
+                                    <button class="comment-like-btn"
+                                            data-comment-id="{{ reply.id }}"
+                                            data-liked="{% if reply.id in liked_comment_ids %}
+                                                            true
+                                                        {% else %}
+                                                            false
+                                                        {% endif %}"
+                                            data-like-url="{% static 'img/Like.svg' %}"
+                                            data-unlike-url="{% static 'img/Unlike.svg' %}">
+                                        <img class="like-icon"
+                                             src="{% if reply.id in liked_comment_ids %}                 {% static 'img/Like.svg' %}               {% else %}                 {% static 'img/Unlike.svg' %}               {% endif %}"
+                                             alt="like" />
+                                    </button>
+                                    <span class="comment-like-text">{{ reply.likes.count }}명이 좋아합니다.</span>
+                                    <div class="comment-item-content">{{ reply.content|linebreaks }}</div>
+                                </div>
+                                <details class="comment-reply-details">
+                                    <summary class="comment-reply-summary">댓글 달기</summary>
+                                    <form method="post"
+                                          action="{% url 'comment_create' post.id %}"
+                                          class="comment-reply-form">
+                                        {% csrf_token %}
+                                        <div class="comment-reply-field">
+                                            {{ comment_form.content }}
+                                            {% if comment_form.content.errors %}
+                                                <ul class="errorlist">
+                                                    {% for err in comment_form.content.errors %}<li>{{ err }}</li>{% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </div>
+                                        <input type="hidden" name="parent_comment" value="{{ comment.id }}" />
+                                        <div class="comment-form-actions">
+                                            <button type="submit" class="comment-form-submit">완료</button>
+                                            <button type="button" class="comment-form-cancel" data-id="{{ comment.id }}">취소</button>
+                                        </div>
+                                    </form>
+                                </details>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% empty %}
+                <p class="no-comments">아직 댓글이 없습니다.</p>
             {% endfor %}
         </div>
-    {% endif %}
-{% empty %}
-    <p>아직 댓글이 없습니다.</p>
-{% endfor %}
-<script>
-    document.querySelectorAll(".like-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-            const commentId = this.dataset.commentId;
-            const liked = this.dataset.liked === "true";
-    
-            fetch(`/post/comment/${commentId}/like/`, {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                    "Content-Type": "application/json",
-                },
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                // 업데이트된 좋아요 상태 반영
-                this.dataset.liked = data.liked;
-                this.querySelector(".like-count").textContent = data.like_count;
-                this.innerHTML =
-                    (data.liked ? "❤️" : "🤍") +
-                    ` <span class="like-count">${data.like_count}</span>`;
-            });
-        });
+        <script>
+  // CSRF 토큰 가져오기
+  document.addEventListener("DOMContentLoaded", () => {
+  const getCSRFToken = () =>
+    document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+
+  // 게시글 좋아요
+  document.querySelectorAll(".post-like-btn").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const res = await fetch(btn.dataset.url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCSRFToken(),
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // 상태 & UI 업데이트
+      btn.dataset.liked = data.liked;
+      const icon = btn.querySelector("img.like-icon");
+      icon.src = data.liked ? btn.dataset.likeUrl : btn.dataset.unlikeUrl;
+      btn.querySelector(".post-like-count").textContent = `${data.like_count} 명이 좋아합니다.`;
     });
-</script>
+  });
+
+  // 댓글 & 대댓글 좋아요 토글
+  document.querySelectorAll(".comment-like-btn").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const id = btn.dataset.commentId;
+      const res = await fetch(`/post/comment/${id}/like/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCSRFToken(),
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // 버튼 상태 갱신
+      btn.dataset.liked = data.liked;
+
+      // 아이콘 갱신
+      const icon = btn.querySelector("img.like-icon");
+      icon.src = data.liked ? btn.dataset.likeUrl : btn.dataset.unlikeUrl;
+
+      // 바로 위 .comment-body 영역에서 .comment-like-text 찾기
+      const wrapper = btn.closest(".comment-body");
+      const textEl = wrapper.querySelector(".comment-like-text");
+      textEl.textContent = `${data.like_count}명이 좋아합니다.`;
+    });
+  });
+});
+
+  // 대댓글/댓글 취소 시 details 닫기
+  document.querySelectorAll(".comment-form-cancel").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      // 댓글 작성 폼을 감싸고 있는 <details> 요소 찾기
+      const details = btn.closest("details");
+      if (details) {
+        details.open = false;
+      }
+      // 루트 댓글 폼(별도 details가 없다면 .comment-form-container) 취소 로직
+      const container = btn.closest(".comment-form-container");
+      if (container) {
+        // textarea 초기화
+        const textarea = container.querySelector("textarea");
+        if (textarea) textarea.value = "";
+      }
+    });
+  });
+        </script>
+    {% endblock content %}

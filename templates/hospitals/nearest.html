@@ -1,31 +1,106 @@
-<h2>내 주변 동물병원</h2>
-<ul id="hospitals-list">
-</ul>
-<script>
-if (!navigator.geolocation) {
-  alert("이 브라우저는 위치 정보를 지원하지 않습니다");
-} else {
-  navigator.geolocation.getCurrentPosition(async pos => {
-    console.log("++++++++++++++++++++")
-    console.log(pos)
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    const res = await fetch("{% url 'nearest_hospitals' %}?lat=" + lat + "&lng=" + lng);
-    if (!res.ok) return alert("병원 정보를 불러오지 못했습니다");
-    const list = await res.json();
-    const container = document.getElementById("hospitals-list");
-    list.forEach(h => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <strong>${h.name}</strong><br>
-        ${h.address}<br>
-        📞 ${h.phone}<br>
-        🚗 ${h.distance} km
-      `;
-      container.appendChild(li);
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/hospital/hospitals.css' %}">
+{% endblock %}
+{% block content %}
+  <h2 class="section-title">내 주변 동물병원</h2>
+  {# 1) 커스텀 로더 HTML (초기 숨김) #}
+  <div id="loader" class="main">
+    <div class="dog">
+      <div class="dog__paws">
+        <div class="dog__bl-leg leg">
+          <div class="dog__bl-paw paw"></div>
+          <div class="dog__bl-top top"></div>
+        </div>
+        <div class="dog__fl-leg leg">
+          <div class="dog__fl-paw paw"></div>
+          <div class="dog__fl-top top"></div>
+        </div>
+        <div class="dog__fr-leg leg">
+          <div class="dog__fr-paw paw"></div>
+          <div class="dog__fr-top top"></div>
+        </div>
+      </div>
+      <div class="dog__body">
+        <div class="dog__tail"></div>
+      </div>
+      <div class="dog__head">
+        <div class="dog__snout">
+          <div class="dog__nose"></div>
+          <div class="dog__eyes">
+            <div class="dog__eye-l"></div>
+            <div class="dog__eye-r"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dog__head-c">
+        <div class="dog__ear-l"></div>
+        <div class="dog__ear-r"></div>
+      </div>
+    </div>
+  </div>
+  {# 2) 결과 컨테이너 + 초기 플레이스홀더 #}
+  <div id="hospitals-list" class="hospital-grid">
+    <p id="placeholder-msg">주변 병원 정보를 불러오는 중…</p>
+  </div>
+  <script>
+  const defaultImage = "{% static 'img/default_hospital.png' %}";
+  const loader       = document.getElementById("loader");
+  const container    = document.getElementById("hospitals-list");
+  const placeholder  = document.getElementById("placeholder-msg");
+
+  if (!navigator.geolocation) {
+    placeholder.textContent = "이 브라우저는 위치 정보를 지원하지 않습니다";
+  } else {
+    navigator.geolocation.getCurrentPosition(async pos => {
+      // ▶ 로더 보이기
+      loader.style.display = "flex";
+      placeholder && placeholder.remove();
+
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      try {
+        const res  = await fetch("{% url 'nearest_hospitals' %}?lat=" + lat + "&lng=" + lng);
+        if (!res.ok) throw new Error(res.statusText);
+        const list = await res.json();
+
+        if (!list.length) {
+          container.innerHTML = "<p>주변에 등록된 병원이 없습니다.</p>";
+          return;
+        }
+
+        // ▶ 결과 렌더링
+        container.innerHTML = "";
+        list.forEach(h => {
+          const imgSrc = h.photo || defaultImage;
+          const card  = document.createElement("div");
+          card.className = "hospital-card";
+          card.innerHTML = `
+            <div class="card-img-wrap">
+              <img src="${imgSrc}" alt="${h.name}" />
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">${h.name}</h3>
+              <p class="card-text">${h.address}</p>
+              <p class="card-text">🚗 ${h.distance} km</p>
+              <p class="card-text">📞 <a href="tel:${h.phone}">${h.phone}</a></p>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = "<p>병원 정보를 불러오지 못했습니다.</p>";
+      } finally {
+        // ▶ 로더 숨기기
+        loader.style.display = "none";
+      }
+    }, () => {
+      loader.style.display = "none";
+      container.innerHTML = "<p>위치 사용을 허용해야 정보를 확인할 수 있습니다.</p>";
     });
-  }, () => {
-    alert("위치 사용을 허용해야 주변 병원을 볼 수 있습니다");
-  });
-}
-</script>
+  }
+  </script>
+{% endblock content %}

@@ -12,7 +12,7 @@ import hospitals.admin_site
 urlpatterns = [
     path("admin/login/", AdminJWTLoginView.as_view(), name="admin_jwt_login"),
     path("admin/", jwt_admin_site.urls),
-    path("", index),
+    path("", index, name="index"),
     path("accounts/", include("accounts.urls")),
     path("dogs/", include("dogs.urls")),
     path("prediction/", include("prediction.urls")),

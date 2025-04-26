@@ -1,35 +1,109 @@
-<h2>회원가입</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <!-- <ul>
-        {% for field in form %}<li>{{ field.label }} : {{ field }}</li>{% endfor %}
-    </ul> -->
-    {{ form.non_field_errors }}
-    <div>
-        {{ form.username.label_tag }}
-        <br />
-        {{ form.username }}
-        {{ form.username.errors }}
-    </div>
-    <div>
-        {{ form.email.label_tag }}
-        <br />
-        {{ form.email }} {{ form.email.errors }}
-    </div>
-    <div>
-        {{ form.profile_image.label_tag }}
-        <br />
-        {{ form.profile_image }} {{ form.profile_image.errors }}
-    </div>
-    <div>
-        {{ form.password1.label_tag }}
-        <br />
-        {{ form.password1 }} {{ form.password1.errors }}
-    </div>
-    <div>
-        {{ form.password2.label_tag }}
-        <br />
-        {{ form.password2 }} {{ form.password2.errors }}
-    </div>
-    <button type="submit">가입하기</button>
-</form>
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/login/login.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <main class="login-page">
+        <!-- 배경 레이어 -->
+        <div class="bg-primary"></div>
+        <!-- 폼 영역 -->
+        <section class="login-section">
+            <div class="login-card">
+                <header class="login-header">
+                    <h1 class="login-title">회원가입</h1>
+                </header>
+                <form method="post"
+                      action="{% url 'account_signup' %}"
+                      class="login-form"
+                      enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <!-- 프로필 이미지 업로드 영역 -->
+                    <div class="upload-wrapper">
+                        <!-- 실제 파일 입력 (숨김) -->
+                        <input type="file"
+                               id="profileImageInput"
+                               name="{{ form.profile_image.html_name }}"
+                               accept="image/*"
+                               style="display: none">
+                        <!-- 클릭 가능한 원형 버튼 -->
+                        <label for="profileImageInput" class="upload-btn">
+                            <!-- 이미지 미리보기 -->
+                            <img id="profileImagePreview"
+                                 src="{% if form.profile_image.value %}{{ form.profile_image.value.url }}{% endif %}"
+                                 alt="프로필 사진"
+                                 style="{% if not form.profile_image.value %}
+                                            display: none;
+                                        {% endif %}">
+                            <!-- 기본 플러스 아이콘 -->
+                            <span id="uploadPlus"
+                                  style="{% if form.profile_image.value %}
+                                             display: none;
+                                         {% endif %}">+</span>
+                        </label>
+                        <!-- 에러 출력 -->
+                        {{ form.profile_image.errors }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.email.errors }}
+                        <label for="{{ form.email.id_for_label }}">이메일</label>
+                        <input id="{{ form.email.id_for_label }}"
+                               name="{{ form.email.html_name }}"
+                               type="email"
+                               required
+                               placeholder="E-mail">
+                    </div>
+                    <div class="form-group">
+                        {{ form.username.errors }}
+                        <label for="{{ form.username.id_for_label }}">사용자명</label>
+                        <input id="{{ form.username.id_for_label }}"
+                               name="{{ form.username.html_name }}"
+                               type="text"
+                               required
+                               placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                        {{ form.password1.errors }}
+                        <label for="{{ form.password1.id_for_label }}">비밀번호</label>
+                        <input id="{{ form.password1.id_for_label }}"
+                               name="{{ form.password1.html_name }}"
+                               type="password"
+                               required
+                               placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn-submit">회원가입</button>
+                </form>
+            </div>
+            <!-- 일러스트레이션 -->
+            <aside class="illustration illustration-left">
+                <img src="{% static 'img/Saly-3.png' %}" alt="illustration">
+            </aside>
+            <aside class="illustration illustration-right">
+                <img src="{% static 'img/Saly-2.png' %}" alt="illustration">
+            </aside>
+        </section>
+    </main>
+    {# 파일 선택 시 미리보기 스크립트 #}
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('profileImageInput');
+  const preview = document.getElementById('profileImagePreview');
+  const plusIcon = document.getElementById('uploadPlus');
+
+  input.addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      // 이미지 미리보기 세팅
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      plusIcon.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+});
+    </script>
+{% endblock content %}

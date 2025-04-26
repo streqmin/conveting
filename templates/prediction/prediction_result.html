@@ -1,37 +1,65 @@
-<h2>예측 결과</h2>
-<p>
-    <strong>반려견:</strong> {{ dog.name }}
-</p>
-<p>
-    <strong>예측 부위:</strong> {{ part }}
-</p>
-<p>
-    <strong>예측 시각:</strong> {{ created_at|date:"Y년 m월 d일 H:i" }}
-</p>
-<hr>
-<table border="1" cellpadding="8">
-    <thead>
-        <tr>
-            <th>질환명</th>
-            <th>정상 여부</th>
-            <th>예측 확률</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for result in predictions %}
-            <tr>
-                <td>{{ result.predicted_disease.name }}</td>
-                <td>
-                    {% if result.is_normal %}
-                        정상
-                    {% else %}
-                        이상
-                    {% endif %}
-                </td>
-                <td>{{ result.probability|floatformat:2 }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<br>
-<a href="{% url 'prediction_create' %}">다시 예측하기</a>
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static '/css/prediction/prediction_result.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="prediction-result-container">
+        <!-- 아이콘 -->
+        <a class="retry-link" href="{% url 'prediction_create' %}">
+            <img class="icon" src="{% static 'img/Icon+ bg.svg' %}" alt="아이콘" />
+        </a>
+        <!-- 예측에 사용된 이미지 -->
+        <img class="prediction-image"
+             src="{{ predictions.0.image.url }}"
+             alt="예측 이미지" />
+        <div class="result-content">
+            <!-- 제목 -->
+            <div class="result-title">AI 질환 예측 결과</div>
+            {% for result in predictions %}
+                <div class="result-item">
+                    <!-- 1) 질환명 -->
+                    <div class="disease-name">{{ result.predicted_disease.name }}</div>
+                    <!-- 2) 확률: 0.x → xx% -->
+                    {% with pct=result.probability|floatformat:2 %}
+                        <div class="probability">
+                            확률:
+                            {% if pct == "1.00" %}
+                                100%
+                            {% else %}
+                                {{ pct|cut:"0." }}%
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                    <!-- 3) 주요 증상 -->
+                    <p>
+                        <strong>주요 증상:</strong>
+                        <br>
+                        {{ result.predicted_disease.symptoms }}
+                    </p>
+                    <!-- 4) 가정에서의 1차 대처 -->
+                    <p>
+                        <strong>가정 대처:</strong>
+                        <br>
+                        {{ result.predicted_disease.home_care }}
+                    </p>
+                    <!-- 5) 수의학적 진단·치료 -->
+                    <p>
+                        <strong>수의 진단·치료:</strong>
+                        <br>
+                        {{ result.predicted_disease.vet_care }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- 하단 배너 -->
+    <div class="banner-container">
+        <a href="{% url 'nearest_hospitals' %}">
+            <img class="banner-img"
+                 src="{% static 'img/banner_hospital.png' %}"
+                 alt="배너 이미지" />
+        </a>
+    </div>
+{% endblock %}

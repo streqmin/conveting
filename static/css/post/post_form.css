@@ -1,0 +1,88 @@
+/* post_form.css */
+.post-form-container {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+.post-form-card {
+    width: 800px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 32px;
+}
+
+.post-form-title {
+    font-size: 1.75rem;
+    margin-bottom: 24px;
+    color: #333;
+}
+
+.post-form-group {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.post-form-group legend {
+    padding: 0 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+.form-col {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.form-field {
+    margin-bottom: 16px;
+}
+
+.form-col select,
+.form-field input[type="text"],
+.form-field textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    color: #333;
+    transition: border-color 0.2s ease;
+}
+
+.form-col select:focus,
+.form-field input:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.form-field textarea {
+    height: 180px;
+    resize: vertical;
+}
+
+.btn-submit {
+    display: inline-block;
+    padding: 10px 24px;
+    background-color: #f87537;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #e06b2b;
+}
