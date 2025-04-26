@@ -1,0 +1,91 @@
+/* 전체 레이아웃 */
+.prediction-result-container {
+    display: inline-flex;
+    align-self: stretch;
+    padding-top: 60px;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+/* 예측에 사용된 이미지 */
+.prediction-result-container .prediction-image {
+    width: 500px;
+    height: 500px;
+    position: relative;
+}
+
+/* 오른쪽 콘텐츠 박스 */
+.prediction-result-container .result-content {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 제목 */
+.result-content .result-title {
+    width: 350px;
+    color: #000;
+    font-size: 40px;
+    font-family: Poppins, sans-serif;
+    font-weight: 600;
+    line-height: 48px;
+    word-wrap: break-word;
+}
+
+/* 각 질환 결과 항목 */
+.result-item {
+    width: 350px;
+}
+
+/* 질환명 */
+.result-item .disease-name {
+    font-size: 20px;
+    font-family: Poppins, sans-serif;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+/* 확률 */
+.result-item .probability {
+    font-size: 18px;
+    font-family: Poppins, sans-serif;
+    font-weight: 400;
+    margin-bottom: 12px;
+}
+
+/* 텍스트 블록 (증상, 가정 대처, 수의 진단·치료) */
+.result-item p {
+    font-size: 16px;
+    font-family: Poppins, sans-serif;
+    font-weight: 400;
+    line-height: 20px;
+    margin-bottom: 8px;
+}
+
+.result-item p:last-of-type {
+    margin-bottom: 0;
+}
+
+/* 하단 배너 */
+.banner-container {
+    width: 70%;
+    height: 60px;
+
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 30px;
+
+    margin-top: 30px;
+}
+
+/* 다시 예측하기 링크 */
+.retry-link {
+    display: inline-block;
+    margin: 30px 0;
+    font-family: Poppins, sans-serif;
+    text-decoration: none;
+    color: #000;
+}

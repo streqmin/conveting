@@ -1,0 +1,328 @@
+/* Profile Form Wrapper */
+.profile-form-wrapper {
+    padding-top: 60px;
+    padding-bottom: 30px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 47px;
+}
+
+/* Profile Inner Wrapper */
+.profile-inner-wrapper {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* Profile Image Container */
+.profile-image-wrapper {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+.profile-image-wrapper label {
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.profile-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Profile Info Wrapper */
+.profile-info-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 12px;
+    width: 400px;
+}
+
+/* Profile Labels */
+.profile-info-wrapper label {
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 16px;
+    font-family: Poppins;
+    font-weight: 400;
+}
+
+/* Form Inputs */
+.profile-username-input,
+.profile-email-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0;
+    font-family: Poppins;
+}
+.profile-username-input {
+    color: black;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 48px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+}
+.profile-email-input {
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25.6px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Save Button */
+.profile-save-btn {
+    padding: 8px 16px;
+    font-family: Poppins;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* View Mode */
+.profile-header-wrapper {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.profile-username-display {
+    color: black;
+    font-size: 40px;
+    font-family: Poppins;
+    font-weight: 600;
+    line-height: 48px;
+}
+.edit-link {
+    display: inline-block;
+}
+.edit-link img {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+.profile-meta {
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 16px;
+    font-family: Poppins;
+    font-weight: 400;
+    line-height: 25.6px;
+}
+
+/* My Dogs Section */
+.my-dogs-section {
+    /* align-self: stretch; */
+    padding: 30px 72px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 40px;
+}
+.section-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+.my-dogs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+.section-title {
+    color: black;
+    font-size: 40px;
+    font-family: Poppins;
+    font-weight: 600;
+    line-height: 48px;
+    word-wrap: break-word;
+}
+.add-dog-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #fba81f;
+    color: white;
+    font-size: 16px;
+    font-family: Poppins;
+    font-weight: 600;
+    border-radius: 20px;
+    text-decoration: none;
+}
+.add-dog-btn .icon {
+    font-size: 20px;
+    line-height: 20px;
+}
+
+/* Dog List */
+.dog-list {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+}
+.dog-card {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 24px;
+    overflow: hidden;
+    width: 100%;
+    border-radius: 20px;
+}
+.dog-card a {
+    text-decoration: none;
+    color: inherit;
+}
+.dog-card img {
+    width: 416px;
+    height: 416px;
+    object-fit: cover;
+}
+.dog-card-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    background: #f8f9fa;
+}
+.dog-name {
+    color: black;
+    font-size: 24px;
+    font-family: Poppins;
+    font-weight: 600;
+    line-height: 48px;
+    word-wrap: break-word;
+}
+.dog-breed {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+    font-family: Poppins;
+    font-weight: 600;
+    line-height: 48px;
+    word-wrap: break-word;
+}
+
+/* Prediction Records Section */
+.prediction-records-section {
+    align-self: stretch;
+    padding: 30px 72px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+.prediction-records-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 1200px;
+}
+.prediction-action-btn {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    background: black;
+    border-radius: 50px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Prediction Cards */
+.prediction-cards-list {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    padding-top: 16px;
+    width: 100%;
+    max-width: 1200px;
+}
+.prediction-card {
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 20px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.prediction-card a {
+    text-decoration: none;
+    color: inherit;
+}
+.prediction-card img {
+    width: 306px;
+    height: 216px;
+    object-fit: cover;
+}
+.prediction-card-info {
+    width: 306px;
+    height: 144px;
+    padding: 20px 16px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.prediction-results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.probability {
+    font-size: 16px;
+    font-family: Poppins;
+    color: rgba(0, 0, 0, 0.6);
+}
+.prediction-dog-name-badge {
+    width: 120px;
+    padding: 10px;
+    background: #fba81f;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.prediction-dog-name {
+    color: white;
+    font-size: 20px;
+    font-family: Poppins;
+    font-weight: 600;
+}
+.prediction-date {
+    margin-top: auto;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+    font-family: Poppins;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+.prediciotn-description-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 5px 0;
+    height: 100%;
+}

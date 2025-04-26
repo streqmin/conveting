@@ -1,0 +1,60 @@
+{% load static %}
+<div class="header">
+    <a href="{% url 'index' %}">
+        <div class="logo">
+            <img class="group" src="{% static 'img/group.png' %}" />
+            <div class="text-wrapper">Conveting</div>
+        </div>
+    </a>
+    <div class="menu">
+        <div class="div-wrapper">
+            <a href="{% url 'index' %}">
+                <div class="text-wrapper-2 {% if request.path == '/' %}active{% endif %}">Home</div>
+            </a>
+        </div>
+        <div class="div-wrapper">
+            <a href="{% url 'prediction_create' %}">
+                <div class="text-wrapper-2
+                            {% if 'prediction' in request.path %}active{% endif %}">AI 질환 예측</div>
+            </a>
+        </div>
+        <div class="div-wrapper">
+            <a href="{% url 'post_list' %}">
+                <div class="text-wrapper-2
+                            {% if 'post' in request.path %}active{% endif %}">게시판</div>
+            </a>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="div-wrapper">
+                <a href="{% url 'mypage' %}">
+                    <div class="text-wrapper-2
+                                {% if 'mypage' in request.path  or 'dogs' in request.path %}active{% endif %}">마이페이지</div>
+                </a>
+            </div>
+            <div class="div-wrapper">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="text-wrapper-2"
+                            style="background:none;
+                                   border:none;
+                                   padding:0;
+                                   cursor:pointer">로그아웃</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="div-wrapper">
+                <a href="{% url 'login' %}">
+                    <div class="text-wrapper-2
+                                {% if 'login' in request.path %}active{% endif %}">로그인</div>
+                </a>
+            </div>
+            <div class="div-wrapper">
+                <a href="{% url 'account_signup' %}">
+                    <div class="text-wrapper-2
+                                {% if 'signup' in request.path %}active{% endif %}">회원가입</div>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>

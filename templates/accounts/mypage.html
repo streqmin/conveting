@@ -1,115 +1,141 @@
-<h2>마이페이지</h2>
-<p>
-    <strong>가입 방식:</strong> {{ user.get_social_type_display }}
-</p>
-<p>
-    <strong>가입일:</strong> {{ user.created_at|date:"Y년 m월 d일 H:i" }}
-</p>
-{% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="프로필 이미지" style="width: 120px" />{% endif %}
-<hr>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {% if is_edit_mode %}
-        <div>
-            {{ form.username.label_tag }}
-            <br />
-            {{ form.username }}
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/mypage/mypage.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="profile-form-wrapper">
+            <div class="profile-inner-wrapper">
+                <div class="profile-image-wrapper">
+                    {% if is_edit_mode %}
+                        <input type="file"
+                               id="profileImageInput"
+                               name="{{ form.profile_image.html_name }}"
+                               accept="image/*"
+                               style="display:none">
+                        <label for="profileImageInput">
+                            <img id="profileImagePreview"
+                                 src="{{ user.profile_image.url|default:'https://placehold.co/160x160' }}"
+                                 alt="프로필 이미지" />
+                        </label>
+                    {% else %}
+                        <img src="{{ user.profile_image.url|default:'https://placehold.co/160x160' }}"
+                             alt="프로필 이미지" />
+                    {% endif %}
+                </div>
+                <div class="profile-info-wrapper">
+                    {% if is_edit_mode %}
+                        <label for="{{ form.username.id_for_label }}">사용자명</label>
+                        <input type="text"
+                               id="{{ form.username.id_for_label }}"
+                               name="{{ form.username.html_name }}"
+                               value="{{ form.username.value|default:user.username }}"
+                               class="profile-username-input">
+                        <label for="{{ form.email.id_for_label }}">이메일</label>
+                        <input type="email"
+                               id="{{ form.email.id_for_label }}"
+                               name="{{ form.email.html_name }}"
+                               value="{{ form.email.value|default:user.email }}"
+                               class="profile-email-input">
+                        <button type="submit" class="profile-save-btn">저장</button>
+                    {% else %}
+                        <div class="profile-header-wrapper">
+                            <div class="profile-username-display">{{ user.username }}</div>
+                            <a href="?edit=true" class="edit-link">
+                                <img src="{% static 'img/file-edit-02.svg' %}" alt="수정하기" />
+                            </a>
+                        </div>
+                        <div class="profile-meta">ID: {{ user.id }}</div>
+                        <div class="profile-meta">가입일: {{ user.created_at|date:"Y년 m월 d일" }}</div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div>
-            {{ form.email.label_tag }}
-            <br />
-            {{ form.email }}
+        <hr>
+    </form>
+    <div class="my-dogs-section">
+        <div class="my-dogs-header">
+            <div class="section-title-wrapper">
+                <div class="section-title">My Dogs</div>
+                <img src="{% static 'img/arrow-switch-horizontal.svg' %}" alt="Switch" />
+            </div>
+            <a href="{% url 'dog_add' %}" class="add-dog-btn">
+                <span class="icon">+</span>
+                <span>반려견 추가하기</span>
+            </a>
         </div>
-        <div>
-            {{ form.profile_image.label_tag }}
-            <br />
-            {{ form.profile_image }}
-        </div>
-        <button type="submit">저장</button>
-    {% else %}
-        <p>
-            <strong>사용자명:</strong> {{ user.username }}
-        </p>
-        <p>
-            <strong>이메일:</strong> {{ user.email|default:"-" }}
-        </p>
-        <a href="?edit=true">
-            <button type="button">수정하기</button>
-        </a>
-    {% endif %}
-    <hr>
-    <h3>반려견 목록</h3>
-    {% if dogs %}
-        <ul>
-            {% for dog in dogs %}
-                <li style="margin-bottom: 20px">
-                    <a href="{% url 'dog_detail' pk=dog.id %}"
-                       style="text-decoration: none;
-                              color: inherit">
-                        <p>
-                            <strong>이름:</strong> {{ dog.name }}
-                        </p>
-                        <p>
-                            <strong>나이:</strong> {{ dog.age|default:"-" }}살
-                        </p>
-                        <p>
-                            <strong>견종:</strong> {{ dog.breed }}
-                        </p>
-                        {% if dog.photo %}
-                            <img src="{{ dog.photo.url }}"
-                                 alt="반려견 사진"
-                                 style="width: 120px;
-                                        border: 1px solid #ccc" />
-                        {% endif %}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>등록된 반려견이 없습니다.</p>
-    {% endif %}
-    <hr>
-    <h3>최근 예측 결과</h3>
-    {% if predictions %}
-        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
-            {% for group in predictions %}
-                <a href="{% url 'prediction_result' request_id=group.request_id %}"
-                   style="text-decoration: none;
-                          color: inherit">
-                    <div style="border: 1px solid #ccc;
-                                padding: 12px;
-                                width: 280px;
-                                border-radius: 8px">
-                        <img src="{{ group.image }}"
-                             alt="예측 이미지"
-                             style="width: 100px;
-                                    height: 100px;
-                                    object-fit: cover;
-                                    border-radius: 8px;
-                                    border: 1px solid #ccc" />
-                        <p>
-                            <strong>반려견:</strong> {{ group.dog_name }}
-                        </p>
-                        {% for pred in group.results %}
-                            <p>
-                                <strong>질환:</strong> {{ pred.predicted_disease.name }}
-                                <br />
-                                <strong>확률:</strong> {{ pred.probability|floatformat:2 }}
-                                <br />
-                                <strong>정상 여부:</strong>
-                                {% if pred.is_normal %}
-                                    정상
-                                {% else %}
-                                    이상
-                                {% endif %}
-                            </p>
-                            {% if not forloop.last %}<hr style="border: none; border-top: 1px dashed #aaa;" />{% endif %}
-                        {% endfor %}
+        {% if dogs %}
+            <div class="dog-list">
+                {% for dog in dogs %}
+                    <div class="dog-card">
+                        <a href="{% url 'dog_detail' pk=dog.id %}">
+                            <img src="{{ dog.photo.url }}" alt="반려견 사진" />
+                            <div class="dog-card-info">
+                                <div class="dog-name">{{ dog.name }}</div>
+                                <div class="dog-breed">{{ dog.breed }}</div>
+                            </div>
+                        </a>
                     </div>
-                </a>
-            {% endfor %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>등록된 반려견이 없습니다.</p>
+        {% endif %}
+    </div>
+    <hr>
+    <div class="prediction-records-section">
+        <div class="prediction-records-header">
+            <div class="section-title-wrapper">
+                <div class="section-title">Prediction Records</div>
+                <img src="{% static 'img/arrow-switch-horizontal.svg' %}" alt="Switch" />
+            </div>
+            <a href="{% url 'prediction_create' %}" class="add-dog-btn">
+                <span class="icon">+</span>
+                <span>AI 질환 예측하러 가기</span>
+            </a>
         </div>
-    {% else %}
-        <p>아직 예측한 기록이 없습니다.</p>
-    {% endif %}
-</form>
+        {% if predictions %}
+            <div class="prediction-cards-list">
+                {% for group in predictions %}
+                    <div class="prediction-card">
+                        <a href="{% url 'prediction_result' request_id=group.request_id %}">
+                            <img src="{{ group.image }}" alt="예측 이미지" />
+                            <div class="prediction-card-info">
+                                <div class="prediction-results">
+                                    {% for pred in group.results %}
+                                        <p>
+                                            <strong>질환:</strong> {{ pred.predicted_disease.name }}
+                                            <div class="probability">
+                                                확률:
+                                                {% with pct=pred.probability|floatformat:2 %}
+                                                    {% if pct == "1.00" %}
+                                                        100%
+                                                    {% else %}
+                                                        {{ pct|cut:"0." }}%
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </div>
+                                            {% if pred.is_normal %}<strong>정상 여부:</strong> 정상{% endif %}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                                <div class="prediciotn-description-meta">
+                                    <div class="prediction-dog-name-badge">
+                                        <div class="prediction-dog-name">{{ group.dog_name }}</div>
+                                    </div>
+                                    <div class="prediction-date">
+                                        <strong>검사일:</strong> {{ group.date|date:"Y.m.d" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>아직 예측한 기록이 없습니다.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

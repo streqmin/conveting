@@ -1,39 +1,88 @@
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div>
-        {{ form.dog.label_tag }}
-        <br />
-        {{ form.dog }}
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/post/post_form.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <div class="post-form-container">
+        <div class="post-form-card">
+            <h2 class="post-form-title">새 게시글 작성</h2>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <fieldset class="post-form-group">
+                    <legend>카테고리 설정</legend>
+                    <div class="form-row">
+                        <div class="form-col">
+                            {{ form.dog.label_tag }}
+                            <br>
+                            {{ form.dog }}
+                        </div>
+                        <div class="form-col">
+                            {{ form.breed.label_tag }}
+                            <br>
+                            {{ form.breed }}
+                        </div>
+                        <div class="form-col">
+                            {{ form.disease.label_tag }}
+                            <br>
+                            {{ form.disease }}
+                        </div>
+                        <div class="form-col">
+                            {{ form.body_part.label_tag }}
+                            <br>
+                            {{ form.body_part }}
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="post-form-group">
+                    <legend>본문</legend>
+                    <div class="form-field">
+                        {{ form.title.label_tag }}
+                        <br>
+                        {{ form.title }}
+                    </div>
+                    <div class="form-field">
+                        {{ form.image.label_tag }}
+                        <br>
+                        {{ form.image }}
+                        <!-- 미리보기용 img -->
+                        <img id="imagePreview"
+                             alt="미리보기 이미지"
+                             class="preview-img"
+                             style="display:none;
+                                    margin-top:12px;
+                                    max-width:100%;
+                                    height:auto" />
+                    </div>
+                    <div class="form-field">
+                        {{ form.content.label_tag }}
+                        <br>
+                        {{ form.content }}
+                    </div>
+                </fieldset>
+                <button type="submit" class="btn-submit">작성하기</button>
+            </form>
+        </div>
     </div>
-    <div>
-        {{ form.breed.label_tag }}
-        <br />
-        {{ form.breed }}
-    </div>
-    <div>
-        {{ form.disease.label_tag }}
-        <br />
-        {{ form.disease }}
-    </div>
-    <div>
-        {{ form.body_part.label_tag }}
-        <br />
-        {{ form.body_part }}
-    </div>
-    <div>
-        {{ form.title.label_tag }}
-        <br />
-        {{ form.title }}
-    </div>
-    <div>
-        {{ form.image.label_tag }}
-        <br />
-        {{ form.image }}
-    </div>
-    <div>
-        {{ form.content.label_tag }}
-        <br />
-        {{ form.content }}
-    </div>
-    <button type="submit">작성하기</button>
-</form>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('id_image');
+  const preview = document.getElementById('imagePreview');
+
+  input.addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) {
+      preview.style.display = 'none';
+      preview.src = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    }
+    reader.readAsDataURL(file);
+  });
+});
+    </script>
+{% endblock content %}
