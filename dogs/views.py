@@ -64,7 +64,7 @@ class DogCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context.update(
             {
-                "dog": None,  # 등록 시 dog 객체 없음
+                "dog": Dog(),  # 빈 dog 객체 제공
                 "is_create_mode": True,
                 "is_edit_mode": False,
             }

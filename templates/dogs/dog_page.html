@@ -9,9 +9,9 @@
           class="profile-form-wrapper">
         {% csrf_token %}
         <div class="profile-inner-wrapper">
-            <!-- 사진 영역 -->
+            {# ─────── 사진 업로드 ─────── #}
             <div class="profile-image-wrapper">
-                {% if is_edit_mode %}
+                {% if is_create_mode or is_edit_mode %}
                     <input type="file"
                            id="dogPhotoInput"
                            name="{{ form.photo.html_name }}"
@@ -20,136 +20,152 @@
                            onchange="previewDogPhoto(this)">
                     <label for="dogPhotoInput">
                         <img id="dogPhotoPreview"
-                             src="{{ object.photo.url|default:'https://placehold.co/160x160' }}"
+                             src="{% if dog and dog.photo %}{{ dog.photo.url }}{% else %}https://placehold.co/160x160{% endif %}"
                              alt="반려견 사진" />
                     </label>
-                    {% for err in form.photo.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+                    {% for err in form.photo.errors %}<div class="error">{{ err }}</div>{% endfor %}
                 {% else %}
-                    <img src="{{ object.photo.url|default:'https://placehold.co/160x160' }}"
+                    <img src="{{ dog.photo.url|default:'https://placehold.co/160x160' }}"
                          alt="반려견 사진" />
                 {% endif %}
             </div>
-            <!-- 정보 영역 -->
+            {# ─────── 정보 입력 / 표시 ─────── #}
             <div class="profile-info-wrapper">
-                {% if is_edit_mode %}
+                {% if is_create_mode or is_edit_mode %}
                     {{ form.non_field_errors }}
+                    {# 이름 #}
                     <label for="{{ form.name.id_for_label }}">이름</label>
                     <input type="text"
                            id="{{ form.name.id_for_label }}"
                            name="{{ form.name.html_name }}"
-                           value="{{ form.name.value|default:object.name }}"
+                           value="{{ form.name.value|default_if_none:''|default:dog.name }}"
                            class="profile-username-input">
-                    {% for err in form.name.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+                    {% for err in form.name.errors %}<div class="error">{{ err }}</div>{% endfor %}
+                    {# 견종 (Select) #}
                     <label for="{{ form.breed.id_for_label }}">견종</label>
-                    <input type="text"
-                           id="{{ form.breed.id_for_label }}"
-                           name="{{ form.breed.html_name }}"
-                           value="{{ form.breed.value|default:object.breed }}"
-                           class="profile-email-input">
-                    {% for err in form.breed.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+                    {{ form.breed }}
+                    {# 성별 (Select) #}
+                    <label for="{{ form.gender.id_for_label }}">성별</label>
+                    {{ form.gender }}
+                    {# 생년월일 #}
                     <label for="{{ form.birth_date.id_for_label }}">생년월일</label>
-                    <input type="date"
-                           id="{{ form.birth_date.id_for_label }}"
-                           name="{{ form.birth_date.html_name }}"
-                           value="{{ form.birth_date.value|default:object.birth_date|date:'Y-m-d' }}"
+                    {{ form.birth_date }}
+                    {# 나이(선택 입력) #}
+                    <label for="{{ form.age.id_for_label }}">나이(개월)</label>
+                    <input type="number"
+                           id="{{ form.age.id_for_label }}"
+                           name="{{ form.age.html_name }}"
+                           value="{{ form.age.value|default_if_none:''|default:dog.age }}"
+                           min="0"
                            class="profile-email-input">
-                    {% for err in form.birth_date.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+                    {% for err in form.age.errors %}<div class="error">{{ err }}</div>{% endfor %}
+                    {# 몸무게 #}
                     <label for="{{ form.weight.id_for_label }}">몸무게 (kg)</label>
                     <input type="number"
                            step="0.1"
                            id="{{ form.weight.id_for_label }}"
                            name="{{ form.weight.html_name }}"
-                           value="{{ form.weight.value|default:object.weight }}"
+                           value="{{ form.weight.value|default_if_none:''|default:dog.weight }}"
                            class="profile-email-input">
-                    {% for err in form.weight.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+                    {# 중성화 여부 #}
                     <label for="{{ form.neutered.id_for_label }}">중성화 여부</label>
                     <input type="checkbox"
                            id="{{ form.neutered.id_for_label }}"
                            name="{{ form.neutered.html_name }}"
-                           {% if form.neutered.value or object.neutered %}checked{% endif %}>
-                    {% for err in form.neutered.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+                           {% if form.neutered.value or dog.neutered %}checked{% endif %}>
+                    {# 특이사항 #}
                     <label for="{{ form.notes.id_for_label }}">특이사항</label>
-                    <textarea id="{{ form.notes.id_for_label }}"
-                              name="{{ form.notes.html_name }}"
-                              class="profile-email-input">{{ form.notes.value|default:object.notes }}</textarea>
-                    {% for err in form.notes.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
-                    <button type="submit" class="profile-save-btn">저장</button>
+                    {{ form.notes }}
+                    <button type="submit" class="profile-save-btn">
+                        {% if is_create_mode %}
+                            등록
+                        {% else %}
+                            저장
+                        {% endif %}
+                    </button>
                 {% else %}
-                    <!-- 조회 모드 -->
+                    {# ─────── 조회 모드 ─────── #}
                     <div class="profile-header-wrapper">
-                        <div class="profile-username-display">{{ object.name }}</div>
-                        {% if request.user == object.user %}
-                            <a href="{% url 'dog_edit' pk=object.pk %}" class="edit-link">
-                                <img src="{% static 'img/file-edit-02.svg' %}" alt="수정하기" />
+                        <div class="profile-username-display">{{ dog.name }}</div>
+                        {% if request.user == dog.user %}
+                            <a href="{% url 'dog_edit' pk=dog.pk %}" class="edit-link">
+                                <img src="{% static 'img/file-edit-02.svg' %}" alt="수정하기">
                             </a>
                         {% endif %}
                     </div>
-                    <div class="profile-meta">견종: {{ object.breed|default:"-" }}</div>
-                    <div class="profile-meta">생년월일: {{ object.birth_date|date:"Y.m.d"|default:"-" }} ({{ object.age|default:"-" }}살)</div>
-                    <div class="profile-meta">몸무게: {{ object.weight|default:"-" }}kg</div>
-                    <div class="profile-meta">중성화: {{ object.neutered|yesno:"예,아니오,-" }}</div>
+                    <div class="profile-meta">견종: {{ dog.breed|default:"-" }}</div>
+                    <div class="profile-meta">성별: {{ dog.gender|title|default:"-" }}</div>
+                    <div class="profile-meta">
+                        생년월일: {{ dog.birth_date|date:"Y.m.d"|default:"-" }}
+                        ({{ dog.age|default:"-" }}개월)
+                    </div>
+                    <div class="profile-meta">몸무게: {{ dog.weight|default:"-" }}kg</div>
+                    <div class="profile-meta">중성화: {{ dog.neutered|yesno:"예,아니오,-" }}</div>
                     <div class="profile-meta">
                         특이사항:
                         <br>
-                        {{ object.notes|linebreaksbr|default:"없음" }}
+                        {{ dog.notes|linebreaksbr|default:"없음" }}
                     </div>
                 {% endif %}
             </div>
         </div>
     </form>
-    <div class="prediction-records-section">
-        <div class="prediction-records-header">
-            <div class="section-title-wrapper">
-                <div class="section-title">Prediction Records</div>
-                <img src="{% static 'img/arrow-switch-horizontal.svg' %}" alt="Switch" />
+    {# ────────── 예측 기록 (등록/수정 시 숨김) ────────── #}
+    {% if not is_create_mode and predictions %}
+        <div class="prediction-records-section">
+            <div class="prediction-records-header">
+                <div class="section-title-wrapper">
+                    <div class="section-title">Prediction Records</div>
+                    <img src="{% static 'img/arrow-switch-horizontal.svg' %}" alt="Switch" />
+                </div>
+                <a href="{% url 'prediction_create' %}" class="add-dog-btn">
+                    <span class="icon">+</span>
+                    <span>AI 질환 예측하러 가기</span>
+                </a>
             </div>
-            <a href="{% url 'prediction_create' %}" class="add-dog-btn">
-                <span class="icon">+</span>
-                <span>AI 질환 예측하러 가기</span>
-            </a>
+            {% if predictions %}
+                <div class="prediction-cards-list">
+                    {% for group in predictions %}
+                        <div class="prediction-card">
+                            <a href="{% url 'prediction_result' request_id=group.request_id %}">
+                                <img src="{{ group.image }}" alt="예측 이미지" />
+                                <div class="prediction-card-info">
+                                    <div class="prediction-results">
+                                        {% for pred in group.results %}
+                                            <p>
+                                                <strong>질환:</strong> {{ pred.predicted_disease.name }}
+                                                <div class="probability">
+                                                    확률:
+                                                    {% with pct=pred.probability|floatformat:2 %}
+                                                        {% if pct == "1.00" %}
+                                                            100%
+                                                        {% else %}
+                                                            {{ pct|cut:"0." }}%
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </div>
+                                                {% if pred.is_normal %}<strong>정상 여부:</strong> 정상{% endif %}
+                                            </p>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="prediciotn-description-meta">
+                                        <div class="prediction-dog-name-badge">
+                                            <div class="prediction-dog-name">{{ group.dog_name }}</div>
+                                        </div>
+                                        <div class="prediction-date">
+                                            <strong>검사일:</strong> {{ group.date|date:"Y.m.d" }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>아직 예측한 기록이 없습니다.</p>
+            {% endif %}
         </div>
-        {% if predictions %}
-            <div class="prediction-cards-list">
-                {% for group in predictions %}
-                    <div class="prediction-card">
-                        <a href="{% url 'prediction_result' request_id=group.request_id %}">
-                            <img src="{{ group.image }}" alt="예측 이미지" />
-                            <div class="prediction-card-info">
-                                <div class="prediction-results">
-                                    {% for pred in group.results %}
-                                        <p>
-                                            <strong>질환:</strong> {{ pred.predicted_disease.name }}
-                                            <div class="probability">
-                                                확률:
-                                                {% with pct=pred.probability|floatformat:2 %}
-                                                    {% if pct == "1.00" %}
-                                                        100%
-                                                    {% else %}
-                                                        {{ pct|cut:"0." }}%
-                                                    {% endif %}
-                                                {% endwith %}
-                                            </div>
-                                            {% if pred.is_normal %}<strong>정상 여부:</strong> 정상{% endif %}
-                                        </p>
-                                    {% endfor %}
-                                </div>
-                                <div class="prediciotn-description-meta">
-                                    <div class="prediction-dog-name-badge">
-                                        <div class="prediction-dog-name">{{ group.dog_name }}</div>
-                                    </div>
-                                    <div class="prediction-date">
-                                        <strong>검사일:</strong> {{ group.date|date:"Y.m.d" }}
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>아직 예측한 기록이 없습니다.</p>
-        {% endif %}
-    </div>
+    {% endif %}
     <script>
 function previewDogPhoto(input) {
   const preview = document.getElementById('dogPhotoPreview');
